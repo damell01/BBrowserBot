@@ -55,8 +55,9 @@ const PixelSetupPage: React.FC = () => {
       const formData = new FormData();
       formData.append('url', websiteUrl);
       formData.append('tracking_id', user.trackingId);
+      formData.append('action', 'verify');
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/verify_pixel.php`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/pixel.php`, {
         method: 'POST',
         body: formData
       });
