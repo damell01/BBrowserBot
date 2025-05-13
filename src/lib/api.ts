@@ -210,7 +210,7 @@ export async function getStats() {
 export async function getPixelScript() {
   try {
     const response = await fetchApi(`${API_URL}/pixel.js`, {
-      method: 'POST',
+      method: 'GET',
     });
 
     return handleResponse(response);
@@ -219,26 +219,41 @@ export async function getPixelScript() {
   }
 }
 
-export async function verifyPixel(url: string, customer_id: string) {
+export async function checkPixelStatus() {
+  try {
+    const response = await fetchApi(`${API_URL}/check_pixel.php`, {
+      method: 'GET',
+    });
+
+    const data = await handleResponse(response);
+    return data.pixelInstalled || false;
+  } catch (error) {
+    console.error('Failed to check pixel status:', error);
+    return false;
+  }
+}
+
+export async function verifyPixel(url: string, trackingId: string) {
   try {
     const response = await fetchApi(`${API_URL}/verify_pixel.php`, {
       method: 'POST',
       body: JSON.stringify({
         url,
-        customer_id,
+        trackingId,
       }),
     });
 
     const data = await handleResponse(response);
     
-    // Handle the specific response format
-    if (data.success && data.pixel_installed === 'already_installed') {
-      return { success: true, pixelInstalled: true };
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to verify pixel');
     }
 
     return data;
   } catch (error) {
-    throw new Error('Failed to verify pixel');
+    const errorMessage = error instanceof Error ? error.message : 'Failed to verify pixel';
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
   }
 }
 

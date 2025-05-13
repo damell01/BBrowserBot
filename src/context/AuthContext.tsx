@@ -20,6 +20,7 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  updatePixelStatus: (status: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,7 +33,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const userData = localStorage.getItem('user');
     if (userData) {
       try {
-        setUser(JSON.parse(userData));
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+        
+        // Check pixel status on load
+        if (parsedUser.role === 'customer') {
+          checkPixelStatus();
+        }
       } catch (e) {
         console.error('Failed to parse stored user data:', e);
         localStorage.removeItem('user');
@@ -40,6 +47,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     setLoading(false);
   }, []);
+
+  const checkPixelStatus = async () => {
+    try {
+      const isInstalled = await api.checkPixelStatus();
+      if (user && user.pixelInstalled !== isInstalled) {
+        updatePixelStatus(isInstalled);
+      }
+    } catch (error) {
+      console.error('Failed to check pixel status:', error);
+    }
+  };
+
+  const updatePixelStatus = (status: boolean) => {
+    if (user) {
+      const updatedUser = { ...user, pixelInstalled: status };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
+  };
 
   const login = async (email: string, password: string) => {
     try {
@@ -103,7 +129,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         logout, 
         isAuthenticated: !!user,
-        isAdmin: user?.role === 'admin'
+        isAdmin: user?.role === 'admin',
+        updatePixelStatus
       }}
     >
       {children}
