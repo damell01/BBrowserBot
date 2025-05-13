@@ -223,7 +223,7 @@ export async function getPixelScript() {
 
 export async function verifyPixel(url: string, trackingId: string) {
   try {
-    const response = await fetchApi(`${API_URL}/verify_pixel.php`, {
+    const response = await fetchApi(`${API_URL}/pixel.php`, {
       method: 'POST',
       body: JSON.stringify({
         url,
