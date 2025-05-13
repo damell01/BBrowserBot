@@ -10,8 +10,7 @@ const PixelSetupPage: React.FC = () => {
   const [setupStep, setSetupStep] = useState(1);
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [isScanning, setIsScanning] = useState(false);
-  const { user, updateUser } = useAuth();
-  const [pixelInstalledState, setPixelInstalledState] = useState(user?.pixelInstalled ?? false);
+  const { user } = useAuth();
   
   const pixelCode = `<!-- BrowserBot Tracking Script -->
 <script src="${import.meta.env.VITE_API_URL}/pixel.js?cid=${user?.customer_id || 'YOUR-TRACKING-ID'}"></script>
@@ -43,16 +42,10 @@ const PixelSetupPage: React.FC = () => {
       const response = await verifyPixel(websiteUrl, user.customer_id);
       
       if (response.success && response.pixelInstalled) {
-        setPixelInstalledState(true);
-        if (updateUser) {
-          await updateUser({ ...user, pixelInstalled: true });
-        }
         toast.success('✅ Pixel successfully installed!');
+        // Force reload to update user data and UI
+        window.location.reload();
       } else {
-        setPixelInstalledState(false);
-        if (updateUser) {
-          await updateUser({ ...user, pixelInstalled: false });
-        }
         toast.error('❌ Pixel not detected. Please check the installation.');
       }
     } catch (error) {
@@ -136,7 +129,7 @@ const PixelSetupPage: React.FC = () => {
       description: "Enter your website URL to verify that the tracking script has been installed correctly.",
       content: (
         <div className="mt-4 space-y-4">
-          {pixelInstalledState ? (
+          {user?.pixelInstalled ? (
             <div className="bg-emerald-900/30 rounded-lg p-4 border border-emerald-500/30">
               <div className="flex items-center">
                 <CheckCircle className="h-5 w-5 text-emerald-400 mr-3" />
