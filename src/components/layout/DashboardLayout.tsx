@@ -13,7 +13,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
   
-  // Check if mobile on mount and when window resizes
   useEffect(() => {
     const checkIfMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -33,16 +32,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
   
   return (
     <div className="flex h-screen bg-gray-950 text-gray-100">
-      {/* Sidebar */}
       <Sidebar 
         isMobile={isMobile} 
         isOpen={sidebarOpen} 
         toggleSidebar={toggleSidebar} 
       />
       
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
         <header className="flex items-center justify-between h-16 px-6 bg-gray-900 border-b border-gray-800">
           {isMobile && (
             <button 
@@ -56,11 +52,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
           <h1 className="text-xl font-semibold text-white">{title}</h1>
           
           <div className="flex items-center">
-            {user?.role === 'customer' && !user.pixelInstalled && (
-              <div className="mr-4 px-3 py-1 text-xs font-medium bg-amber-900/50 text-amber-300 rounded-full border border-amber-500/30">
-                Pixel Not Installed
-              </div>
-            )}
             <div className="flex items-center justify-center w-8 h-8 bg-blue-700 rounded-full">
               <span className="text-sm font-medium text-white">
                 {user?.name.charAt(0)}
@@ -69,7 +60,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
           </div>
         </header>
         
-        {/* Content */}
         <main className="flex-1 overflow-y-auto bg-gradient-to-b from-gray-900 to-gray-950 p-6">
           {children}
         </main>
