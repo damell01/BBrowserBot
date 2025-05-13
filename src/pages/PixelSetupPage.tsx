@@ -40,6 +40,12 @@ const PixelSetupPage: React.FC = () => {
   };
 
   const handleScanWebsite = async () => {
+    // Check for user authentication first
+    if (!user?.id) {
+      toast.error('Please log in to scan your website');
+      return;
+    }
+
     if (!websiteUrl) {
       toast.error('Please enter a website URL');
       return;
@@ -49,15 +55,9 @@ const PixelSetupPage: React.FC = () => {
     console.log('Scan attempt:', {
       url: websiteUrl,
       user: user,
-      userId: user?.id,
+      userId: user.id,
       apiUrl: import.meta.env.VITE_API_URL
     });
-
-    if (!user?.id) {
-      console.error('No user ID found in user data');
-      toast.error('User ID not available');
-      return;
-    }
 
     setIsScanning(true);
     try {
