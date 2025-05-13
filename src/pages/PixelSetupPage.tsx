@@ -11,6 +11,9 @@ const PixelSetupPage: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false);
   const { user } = useAuth();
   
+  // Log user data when component mounts
+  console.log('Current user data:', user);
+  
   const pixelCode = `<!-- BrowserBot Tracking Script -->
 <script>
   window.customer_id = '${user?.customer_id || "YOUR-CUSTOMER-ID"}';
@@ -42,45 +45,63 @@ const PixelSetupPage: React.FC = () => {
       return;
     }
 
-    if (!user?.trackingId) {
+    // Log user and tracking data
+    console.log('Scan attempt:', {
+      url: websiteUrl,
+      user: user,
+      customerId: user?.customer_id,
+      apiUrl: import.meta.env.VITE_API_URL
+    });
+
+    if (!user?.customer_id) {
+      console.error('No customer ID found in user data');
       toast.error('No customer ID available');
       return;
     }
 
     setIsScanning(true);
     try {
+      console.log('Sending scan request to:', `${import.meta.env.VITE_API_URL}/pixel.php`);
+      
+      const requestBody = {
+        url: websiteUrl,
+        customer_id: user.customer_id
+      };
+      console.log('Request payload:', requestBody);
+
       const response = await fetch(`${import.meta.env.VITE_API_URL}/pixel.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          url: websiteUrl,
-          customer_id: user.trackingId
-        }),
+        body: JSON.stringify(requestBody),
       });
 
-      // Log the raw response for debugging
+      // Log the raw response
       const responseText = await response.text();
-      console.log('Raw response:', responseText);
+      console.log('Raw API response:', responseText);
 
       // Try to parse the response as JSON
       let data;
       try {
         data = JSON.parse(responseText);
+        console.log('Parsed response data:', data);
       } catch (parseError) {
-        console.error('Failed to parse response:', parseError);
+        console.error('Failed to parse response as JSON:', parseError);
         throw new Error('Invalid response from server');
       }
 
       if (!data.success) {
+        console.error('API reported error:', data.error);
         throw new Error(data.error || 'Failed to verify pixel');
       }
 
       if (data.pixelFound) {
+        console.log('Pixel verification successful');
         toast.success('Tracking script detected successfully!');
-        setSetupStep(1); // Return to first step after successful verification
+        setSetupStep(1);
       } else {
+        console.log('Pixel not found on website');
         toast.error('Tracking script not found. Please check the installation.');
       }
     } catch (error) {
