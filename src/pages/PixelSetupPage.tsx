@@ -38,18 +38,15 @@ const PixelSetupPage: React.FC = () => {
 
     setIsScanning(true);
     try {
-      // Extract domain from URL
-      const domain = new URL(websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`).hostname;
-      
       // Send verification request
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/pixel.php`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/verify_pixel.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           customer_id: user.customer_id,
-          domain: domain
+          url: websiteUrl
         })
       });
 
@@ -59,12 +56,15 @@ const PixelSetupPage: React.FC = () => {
 
       const data = await response.json();
       
-      if (data.verified) {
+      if (data.success) {
         toast.success('✅ Pixel successfully installed!');
+        // The backend will automatically set pixel_installed to 1 if verified
+        window.location.reload(); // Refresh to update UI with new pixel status
       } else {
         toast.error('❌ Pixel not detected yet');
       }
     } catch (error) {
+      console.error('Verification error:', error);
       toast.error('Failed to verify tracking script. Please try again.');
     } finally {
       setIsScanning(false);
