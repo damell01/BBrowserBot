@@ -3,6 +3,7 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import { Code, Copy, CheckCircle, ExternalLink, ArrowRight, Lightbulb, Search, AlertCircle, Loader2, Scale, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
+import { verifyPixel } from '../lib/api';
 
 const PixelSetupPage: React.FC = () => {
   const [copied, setCopied] = useState(false);
@@ -38,27 +39,10 @@ const PixelSetupPage: React.FC = () => {
 
     setIsScanning(true);
     try {
-      // Send verification request
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/verify_pixel.php`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          customer_id: user.customer_id,
-          url: websiteUrl
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
+      const response = await verifyPixel(websiteUrl, user.customer_id);
       
-      if (data.success) {
+      if (response.success) {
         toast.success('✅ Pixel successfully installed!');
-        // The backend will automatically set pixel_installed to 1 if verified
         window.location.reload(); // Refresh to update UI with new pixel status
       } else {
         toast.error('❌ Pixel not detected yet');
