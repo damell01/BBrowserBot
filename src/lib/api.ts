@@ -221,13 +221,14 @@ export async function getPixelScript() {
   }
 }
 
-export async function verifyPixel(url: string, trackingId: string) {
+export async function verifyPixel(page: string, customer_id: string) {
   try {
     const response = await fetchApi(`${API_URL}/pixel.php`, {
       method: 'POST',
       body: JSON.stringify({
-        url,
-        trackingId,
+        customer_id,
+        page,
+        referrer: document.referrer,
       }),
     });
 
