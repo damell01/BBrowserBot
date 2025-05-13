@@ -61,7 +61,7 @@ const PixelSetupPage: React.FC = () => {
 
     setIsScanning(true);
     try {
-      console.log('Sending scan request to:', `${import.meta.env.VITE_API_URL}/pixel.php`);
+      console.log('Sending scan request to:', `${import.meta.env.VITE_API_URL}/scan-pixel`);
       
       const requestBody = {
         url: websiteUrl,
@@ -69,7 +69,7 @@ const PixelSetupPage: React.FC = () => {
       };
       console.log('Request payload:', requestBody);
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/pixel.php`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/scan-pixel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
