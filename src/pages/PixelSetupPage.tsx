@@ -42,7 +42,16 @@ const PixelSetupPage: React.FC = () => {
       const domain = new URL(websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`).hostname;
       
       // Send verification request
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/pixel.php?customer_id=${user.customer_id}&domain=${encodeURIComponent(domain)}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/verify_pixel.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customer_id: user.customer_id,
+          domain: domain
+        })
+      });
 
       if (!response.ok) {
         throw new Error(`Server returned ${response.status}: ${response.statusText}`);
