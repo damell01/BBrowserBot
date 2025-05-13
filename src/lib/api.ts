@@ -5,6 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 interface ApiResponse {
   success: boolean;
   error?: string;
+  pixelInstalled?: boolean;
   [key: string]: any;
 }
 
@@ -42,10 +43,7 @@ async function handleResponse(response: Response): Promise<ApiResponse> {
 
   if (response.ok && !responseData.user && typeof responseData === 'object') {
     if (Array.isArray(responseData)) {
-      return {
-        success: true,
-        leads: responseData
-      };
+      return { success: true, leads: responseData };
     }
     responseData = {
       success: true,
