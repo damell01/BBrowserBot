@@ -3,12 +3,13 @@ import { load } from "npm:cheerio@1.0.0-rc.12";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Content-Type': 'application/json'
 };
 
 Deno.serve(async (req) => {
   // Handle CORS
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response(JSON.stringify({ status: 'ok' }), { headers: corsHeaders });
   }
 
   try {
@@ -17,8 +18,11 @@ Deno.serve(async (req) => {
     // Validate URL
     if (!url || !trackingId) {
       return new Response(
-        JSON.stringify({ error: 'URL and tracking ID are required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          success: false, 
+          error: 'URL and tracking ID are required' 
+        }),
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -29,7 +33,13 @@ Deno.serve(async (req) => {
       // Fetch the webpage
       const response = await fetch(targetUrl);
       if (!response.ok) {
-        throw new Error(`Failed to fetch website: ${response.statusText}`);
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: `Failed to fetch website: ${response.statusText}` 
+          }),
+          { status: response.status, headers: corsHeaders }
+        );
       }
       
       const html = await response.text();
@@ -58,9 +68,7 @@ Deno.serve(async (req) => {
           pixelFound,
           message: pixelFound ? 'Tracking pixel detected' : 'Tracking pixel not found or incorrectly installed' 
         }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        { headers: corsHeaders }
       );
     } catch (error) {
       return new Response(
@@ -68,10 +76,7 @@ Deno.serve(async (req) => {
           success: false,
           error: `Failed to scan website: ${error.message}` 
         }),
-        { 
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        { status: 500, headers: corsHeaders }
       );
     }
   } catch (error) {
@@ -80,10 +85,7 @@ Deno.serve(async (req) => {
         success: false,
         error: 'Invalid request format' 
       }),
-      { 
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { status: 400, headers: corsHeaders }
     );
   }
 });
