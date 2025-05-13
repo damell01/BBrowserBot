@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
-import { Menu, CheckCircle, AlertCircle } from 'lucide-react';
+import { Menu, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 interface DashboardLayoutProps {
@@ -40,27 +40,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
       
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Status Badge */}
-        {user?.role === 'customer' && (
-          <div className={`${
-            user.pixelInstalled 
-              ? 'bg-emerald-900/30 border-emerald-500/30' 
-              : 'bg-amber-900/30 border-amber-500/30'
-          } border-b py-1.5`}>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-              {user.pixelInstalled ? (
-                <>
-                  <CheckCircle className="w-4 h-4 text-emerald-400 mr-2" />
-                  <span className="text-sm text-emerald-300">Tracking pixel is active and collecting data</span>
-                </>
-              ) : (
-                <>
-                  <AlertCircle className="w-4 h-4 text-amber-400 mr-2" />
-                  <span className="text-sm text-amber-300">Tracking pixel not installed - <a href="/pixel-setup" className="underline hover:text-amber-200">Set up now</a></span>
-                </>
-              )}
-            </div>
+        <div className="bg-emerald-900/30 border-b border-emerald-500/30 py-1.5">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+            <CheckCircle className="w-4 h-4 text-emerald-400 mr-2" />
+            <span className="text-sm text-emerald-300">Tracking pixel is active and collecting data</span>
           </div>
-        )}
+        </div>
 
         <header className="flex items-center justify-between h-16 px-6 bg-gray-900 border-b border-gray-800">
           {isMobile && (
