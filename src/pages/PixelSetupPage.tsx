@@ -11,14 +11,15 @@ const PixelSetupPage: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false);
   const { user } = useAuth();
   
+  console.log('Current user data:', user);
+  console.log('Customer ID for tracking:', user?.customer_id);
+  
   const pixelCode = `<!-- BrowserBot Tracking Script -->
-<script>
-  window.customer_id = "${user?.id || 'YOUR-CUSTOMER-ID'}";
-</script>
-<script src="${import.meta.env.VITE_API_URL}/pixel.js"></script>
+<script src="${import.meta.env.VITE_API_URL}/pixel.js?cid=${user?.customer_id || 'YOUR-TRACKING-ID'}"></script>
 <!-- End BrowserBot Tracking Script -->`;
 
   const handleCopyCode = () => {
+    console.log('Copying tracking code with customer_id:', user?.customer_id);
     navigator.clipboard.writeText(pixelCode);
     setCopied(true);
     toast.success('Tracking code copied to clipboard!');
@@ -29,29 +30,52 @@ const PixelSetupPage: React.FC = () => {
   };
 
   const handleScanWebsite = async () => {
+    if (!user?.customer_id) {
+      console.error('No customer_id available for verification');
+      toast.error('Please log in or ensure your account is properly set up.');
+      return;
+    }
+
     if (!websiteUrl) {
+      console.error('No website URL provided');
       toast.error('Please enter a website URL');
       return;
     }
 
+    console.log('Starting website scan:', {
+      url: websiteUrl,
+      customer_id: user.customer_id,
+      api_url: import.meta.env.VITE_API_URL
+    });
+
     setIsScanning(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/verify_pixel.php`, {
+      const formData = new FormData();
+      formData.append('url', websiteUrl);
+      formData.append('customer_id', user.customer_id);
+      formData.append('action', 'verify');
+
+      console.log('Sending verification request to:', `${import.meta.env.VITE_API_URL}/pixel.php`);
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/pixel.php`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          url: websiteUrl,
-          customer_id: user?.id
-        })
+        body: formData
       });
 
+      console.log('Verification response status:', response.status);
+
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+      }
+
       const data = await response.json();
+      console.log('Verification response data:', data);
       
       if (data.success) {
-        toast.success('Tracking script detected successfully!');
+        console.log('Tracking script verified successfully');
+        toast.success('Tracking script verified successfully!');
       } else {
+        console.warn('Verification failed:', data.message);
         toast.error(data.message || 'Tracking script not found. Please check the installation.');
       }
     } catch (error) {
