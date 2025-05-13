@@ -50,15 +50,15 @@ Deno.serve(async (req) => {
       // Look for the tracking script
       const scripts = $('script').map((_, el) => $(el).html()).get();
       
-      // Check for both script source and initialization
-      const hasTrackerScript = scripts.some(script => 
+      // Check for BrowserBotTracker initialization
+      const hasTrackerInit = scripts.some(script =>
         script && script.includes('BrowserBotTracker') && 
+        script.includes(`BrowserBotTrackingID`) &&
         script.includes(trackingId)
       );
 
-      const hasTrackerInit = scripts.some(script =>
-        script && script.includes(`BrowserBotTracker('init', '${trackingId}')`)
-      );
+      // Check for tracker.js script
+      const hasTrackerScript = $('script[src*="tracker.js"]').length > 0;
 
       const pixelFound = hasTrackerScript && hasTrackerInit;
 
