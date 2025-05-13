@@ -12,8 +12,13 @@ const CustomerDashboardPage: React.FC = () => {
   const { user } = useAuth();
   const { leads, stats } = useLeads();
   
+  console.log('CustomerDashboardPage - User:', user);
+  console.log('CustomerDashboardPage - All Leads:', leads);
+  
   // Filter leads for current customer
-  const customerLeads = leads.filter(lead => lead.customerId === user?.id);
+  const customerLeads = leads;
+  
+  console.log('CustomerDashboardPage - Filtered Customer Leads:', customerLeads);
   
   // Calculate dashboard stats
   const dashboardStats = {
@@ -31,7 +36,7 @@ const CustomerDashboardPage: React.FC = () => {
       lead.email,
       lead.phone,
       lead.company,
-      'resolved',
+      lead.source,
       lead.status,
       new Date(lead.createdAt).toLocaleDateString()
     ]);

@@ -22,6 +22,8 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ leads, onUpdateStatus }) => {
   const [sortField, setSortField] = useState<keyof Lead>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   
+  console.log('LeadsTable - Received Leads:', leads);
+  
   // Filter leads by search term
   const filteredLeads = leads.filter(lead => 
     lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -29,6 +31,8 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ leads, onUpdateStatus }) => {
     lead.phone.includes(searchTerm) ||
     lead.company.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
+  console.log('LeadsTable - Filtered Leads:', filteredLeads);
   
   // Sort leads
   const sortedLeads = [...filteredLeads].sort((a, b) => {
@@ -43,12 +47,16 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ leads, onUpdateStatus }) => {
     return 0;
   });
   
+  console.log('LeadsTable - Sorted Leads:', sortedLeads);
+  
   // Paginate leads
   const totalPages = Math.ceil(sortedLeads.length / LEADS_PER_PAGE);
   const paginatedLeads = sortedLeads.slice(
     (currentPage - 1) * LEADS_PER_PAGE,
     currentPage * LEADS_PER_PAGE
   );
+  
+  console.log('LeadsTable - Paginated Leads:', paginatedLeads);
   
   const handleSort = (field: keyof Lead) => {
     if (sortField === field) {
@@ -141,10 +149,10 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ leads, onUpdateStatus }) => {
                     {lead.phone}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    resolved
+                    {lead.source}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {lead.createdAt.toLocaleDateString()}
+                    {new Date(lead.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <select
