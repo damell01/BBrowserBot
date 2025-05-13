@@ -41,11 +41,12 @@ const PixelSetupPage: React.FC = () => {
     try {
       const response = await verifyPixel(websiteUrl, user.customer_id);
       
-      if (response.success) {
+      if (response.success && response.pixelInstalled) {
         toast.success('✅ Pixel successfully installed!');
-        window.location.reload(); // Refresh to update UI with new pixel status
+        // Force reload to update user data and UI
+        window.location.reload();
       } else {
-        toast.error('❌ Pixel not detected yet');
+        toast.error('❌ Pixel not detected. Please check the installation.');
       }
     } catch (error) {
       console.error('Verification error:', error);
