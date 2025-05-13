@@ -44,10 +44,11 @@ const PixelSetupPage: React.FC = () => {
 
     setIsScanning(true);
     try {
-      const response = await fetch('/api/scan-pixel', {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scan-pixel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
         },
         body: JSON.stringify({
           url: websiteUrl,
@@ -57,12 +58,13 @@ const PixelSetupPage: React.FC = () => {
 
       const data = await response.json();
       
-      if (data.pixelFound) {
+      if (data.success && data.pixelFound) {
         toast.success('Tracking script detected successfully!');
       } else {
-        toast.error('Tracking script not found. Please check the installation.');
+        toast.error(data.message || 'Tracking script not found. Please check the installation.');
       }
     } catch (error) {
+      console.error('Scan error:', error);
       toast.error('Failed to scan website. Please try again.');
     } finally {
       setIsScanning(false);
