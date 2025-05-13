@@ -26,6 +26,124 @@ const PixelSetupPage: React.FC = () => {
 </script>
 <!-- End BrowserBot Tracking Script -->`;
 
+  const steps = [
+    {
+      title: 'Copy Tracking Script',
+      description: 'Copy the tracking script below and paste it into the `<head>` section of your website.',
+      content: (
+        <div>
+          <div className="bg-gray-900 rounded-md p-4 mb-4">
+            <pre className="text-sm text-gray-200 whitespace-pre-wrap">{pixelCode}</pre>
+          </div>
+          <div className="flex justify-end">
+            <button
+              onClick={handleCopyCode}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              disabled={copied}
+            >
+              {copied ? (
+                <div className="flex items-center">
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Copied!
+                </div>
+              ) : (
+                <div className="flex items-center">
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy Code
+                </div>
+              )}
+            </button>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: 'Verify Installation',
+      description: 'Enter your website URL to verify that the tracking script has been installed correctly.',
+      content: (
+        <div>
+          <div className="mb-4">
+            <label htmlFor="websiteUrl" className="block text-sm font-medium text-gray-300 mb-1">
+              Website URL
+            </label>
+            <input
+              type="url"
+              id="websiteUrl"
+              value={websiteUrl}
+              onChange={(e) => setWebsiteUrl(e.target.value)}
+              className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-md text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="https://yourwebsite.com"
+            />
+          </div>
+          <button
+            onClick={handleScanWebsite}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            disabled={isScanning}
+          >
+            {isScanning ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Scanning...
+              </>
+            ) : (
+              <>
+                <Search className="mr-2 h-4 w-4" />
+                Scan Website
+              </>
+            )}
+          </button>
+        </div>
+      ),
+    },
+    {
+      title: 'Legal Best Practices',
+      description: 'Ensure your website is compliant with privacy laws and regulations.',
+      content: (
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 p-4 bg-blue-900/30 rounded-lg border border-blue-500/30">
+            <Lightbulb className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-medium text-blue-300">Privacy Policy</h4>
+              <p className="text-sm text-blue-200/70">
+                Make sure your website has a clear and comprehensive privacy policy that explains how you collect and use visitor data.
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-start gap-3 p-4 bg-blue-900/30 rounded-lg border border-blue-500/30">
+            <Scale className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-medium text-blue-300">Terms of Service</h4>
+              <p className="text-sm text-blue-200/70">
+                Provide clear terms of service that outline the rules and guidelines for using your website.
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-start gap-3 p-4 bg-blue-900/30 rounded-lg border border-blue-500/30">
+            <FileText className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-medium text-blue-300">Consent</h4>
+              <p className="text-sm text-blue-200/70">
+                Obtain user consent before collecting any personal data. Implement a cookie consent banner if necessary.
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-start gap-3 p-4 bg-amber-900/30 rounded-lg border border-amber-500/30">
+            <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-medium text-amber-300">Disclaimer</h4>
+              <p className="text-sm text-amber-200/70">
+                This information is not legal advice. Consult with a legal professional to ensure full compliance with all applicable laws and regulations.
+              </p>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+  ];
+
   const handleCopyCode = () => {
     navigator.clipboard.writeText(pixelCode);
     setCopied(true);
