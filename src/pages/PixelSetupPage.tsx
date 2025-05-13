@@ -26,6 +26,51 @@ const PixelSetupPage: React.FC = () => {
 </script>
 <!-- End BrowserBot Tracking Script -->`;
 
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(pixelCode);
+    setCopied(true);
+    toast.success('Tracking code copied to clipboard!');
+    
+    setTimeout(() => {
+      setCopied(false);
+    }, 3000);
+  };
+
+  const handleScanWebsite = async () => {
+    if (!websiteUrl) {
+      toast.error('Please enter a website URL');
+      return;
+    }
+
+    setIsScanning(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scan-pixel`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+          url: websiteUrl,
+          trackingId: user?.trackingId || user?.customer_id
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success && data.pixelFound) {
+        toast.success('Tracking script detected successfully!');
+      } else {
+        toast.error(data.message || 'Tracking script not found. Please check the installation.');
+      }
+    } catch (error) {
+      console.error('Scan error:', error);
+      toast.error('Failed to scan website. Please try again.');
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
   const steps = [
     {
       title: 'Copy Tracking Script',
@@ -143,51 +188,6 @@ const PixelSetupPage: React.FC = () => {
       ),
     },
   ];
-
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText(pixelCode);
-    setCopied(true);
-    toast.success('Tracking code copied to clipboard!');
-    
-    setTimeout(() => {
-      setCopied(false);
-    }, 3000);
-  };
-
-  const handleScanWebsite = async () => {
-    if (!websiteUrl) {
-      toast.error('Please enter a website URL');
-      return;
-    }
-
-    setIsScanning(true);
-    try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scan-pixel`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
-        },
-        body: JSON.stringify({
-          url: websiteUrl,
-          trackingId: user?.trackingId || user?.customer_id
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.success && data.pixelFound) {
-        toast.success('Tracking script detected successfully!');
-      } else {
-        toast.error(data.message || 'Tracking script not found. Please check the installation.');
-      }
-    } catch (error) {
-      console.error('Scan error:', error);
-      toast.error('Failed to scan website. Please try again.');
-    } finally {
-      setIsScanning(false);
-    }
-  };
 
   return (
     <DashboardLayout title="Bot Setup">
