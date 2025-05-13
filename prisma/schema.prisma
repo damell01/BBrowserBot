@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  password      String
+  role          String    @default("customer")
+  companyName   String?
+  pixelInstalled Boolean  @default(false)
+  trackingId    String    @unique @default(dbgenerated("concat('LT-', substr(uuid_generate_v4()::text, 1, 8))")) @db.VarChar(20)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  leads         Lead[]
+}
+
+model Lead {
+  id          String    @id @default(uuid())
+  name        String
+  email       String
+  phone       String
+  company     String
+  source      String
+  status      String    @default("new")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+}
