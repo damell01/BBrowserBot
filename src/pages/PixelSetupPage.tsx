@@ -13,7 +13,7 @@ const PixelSetupPage: React.FC = () => {
   
   const pixelCode = `<!-- BrowserBot Tracking Script -->
 <script>
-  window.BrowserBotTrackingID = '${user?.trackingId || user?.customer_id || "YOUR-TRACKING-ID"}';
+  window.BrowserBotTrackingID = '${user?.trackingId || "YOUR-TRACKING-ID"}';
   (function(b,r,o,w,s){
     b.BrowserBotTracker=b.BrowserBotTracker||function(){
       (b.BrowserBotTracker.q=b.BrowserBotTracker.q||[]).push(arguments)
@@ -42,6 +42,11 @@ const PixelSetupPage: React.FC = () => {
       return;
     }
 
+    if (!user?.trackingId) {
+      toast.error('No tracking ID available');
+      return;
+    }
+
     setIsScanning(true);
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/pixel.php`, {
@@ -51,7 +56,7 @@ const PixelSetupPage: React.FC = () => {
         },
         body: JSON.stringify({
           url: websiteUrl,
-          trackingId: user?.trackingId || user?.customer_id
+          trackingId: user.trackingId
         }),
       });
 
