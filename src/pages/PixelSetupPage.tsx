@@ -9,7 +9,7 @@ const PixelSetupPage: React.FC = () => {
   const [setupStep, setSetupStep] = useState(1);
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [isScanning, setIsScanning] = useState(false);
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   
   // Log user data when component mounts
   console.log('Current user data:', user);
@@ -77,8 +77,29 @@ const PixelSetupPage: React.FC = () => {
 
       const data = await response.json();
       
-      if (data.success) {
-        toast.success('Tracking script verified successfully!');
+      if (data.success && data.pixelFound) {
+        // Update user's pixel_installed status
+        const updateResponse = await fetch(`${import.meta.env.VITE_API_URL}/update_pixel_status.php`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            customer_id: user.customer_id,
+            pixel_installed: true
+          }),
+        });
+
+        const updateData = await updateResponse.json();
+        
+        if (updateData.success) {
+          // Update local user state
+          updateUser({ ...user, pixel_installed: true });
+          toast.success('Tracking script verified and installation status updated!');
+        } else {
+          console.error('Failed to update pixel status:', updateData.error);
+          toast.error('Tracking script found but failed to update installation status.');
+        }
       } else {
         toast.error(data.message || 'Tracking script not found. Please check the installation.');
       }
