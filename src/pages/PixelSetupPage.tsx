@@ -44,7 +44,7 @@ const PixelSetupPage: React.FC = () => {
 
     setIsScanning(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/verify_pixel.php`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/spixel.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
