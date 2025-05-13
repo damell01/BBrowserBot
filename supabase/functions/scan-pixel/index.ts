@@ -22,39 +22,66 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Fetch the webpage
-    const response = await fetch(url);
-    const html = await response.text();
+    // Ensure URL has protocol
+    const targetUrl = url.startsWith('http') ? url : `https://${url}`;
 
-    // Load HTML into cheerio
-    const $ = load(html);
-
-    // Look for the tracking script
-    const scripts = $('script').map((_, el) => $(el).html()).get();
-    const pixelFound = scripts.some(script => 
-      script && script.includes('LeadSyncTracker') && script.includes(trackingId)
-    );
-
-    // Update user's pixel status in the database if found
-    if (pixelFound) {
-      // In a real implementation, you would update the database here
-      console.log(`Pixel found for tracking ID: ${trackingId}`);
-    }
-
-    return new Response(
-      JSON.stringify({ 
-        pixelFound,
-        message: pixelFound ? 'Tracking pixel detected' : 'Tracking pixel not found' 
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    try {
+      // Fetch the webpage
+      const response = await fetch(targetUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch website: ${response.statusText}`);
       }
-    );
+      
+      const html = await response.text();
+
+      // Load HTML into cheerio
+      const $ = load(html);
+
+      // Look for the tracking script
+      const scripts = $('script').map((_, el) => $(el).html()).get();
+      
+      // Check for both script source and initialization
+      const hasTrackerScript = scripts.some(script => 
+        script && script.includes('BrowserBotTracker') && 
+        script.includes(trackingId)
+      );
+
+      const hasTrackerInit = scripts.some(script =>
+        script && script.includes(`BrowserBotTracker('init', '${trackingId}')`)
+      );
+
+      const pixelFound = hasTrackerScript && hasTrackerInit;
+
+      return new Response(
+        JSON.stringify({ 
+          success: true,
+          pixelFound,
+          message: pixelFound ? 'Tracking pixel detected' : 'Tracking pixel not found or incorrectly installed' 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    } catch (error) {
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: `Failed to scan website: ${error.message}` 
+        }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
   } catch (error) {
     return new Response(
-      JSON.stringify({ error: 'Failed to scan website' }),
+      JSON.stringify({ 
+        success: false,
+        error: 'Invalid request format' 
+      }),
       { 
-        status: 500, 
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );
