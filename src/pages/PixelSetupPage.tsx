@@ -11,23 +11,11 @@ const PixelSetupPage: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false);
   const { user } = useAuth();
   
-  // Enhanced logging for user data and tracking ID
   console.log('Current user data:', user);
   console.log('Customer ID for tracking:', user?.customer_id);
   
   const pixelCode = `<!-- BrowserBot Tracking Script -->
-<script>
-  window.BrowserBotTrackingID = '${user?.customer_id || "YOUR-TRACKING-ID"}';
-  (function(b,r,o,w,s){
-    b.BrowserBotTracker=b.BrowserBotTracker||function(){
-      (b.BrowserBotTracker.q=b.BrowserBotTracker.q||[]).push(arguments)
-    };
-    o=r.createElement('script');
-    o.async=1;
-    o.src='${import.meta.env.VITE_API_URL}/tracker.js';
-    r.getElementsByTagName('head')[0].appendChild(o);
-  })(window,document);
-</script>
+<script src="${import.meta.env.VITE_API_URL}/pixel.js?cid=${user?.customer_id || 'YOUR-TRACKING-ID'}"></script>
 <!-- End BrowserBot Tracking Script -->`;
 
   const handleCopyCode = () => {
