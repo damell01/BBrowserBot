@@ -14,9 +14,11 @@ Deno.serve(async (req) => {
 
   try {
     const { url, trackingId } = await req.json();
+    console.log('Received scan request:', { url, trackingId });
 
     // Validate URL and trackingId
     if (!url) {
+      console.error('Missing URL in request');
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -27,6 +29,7 @@ Deno.serve(async (req) => {
     }
 
     if (!trackingId) {
+      console.error('Missing trackingId in request');
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -38,6 +41,7 @@ Deno.serve(async (req) => {
 
     // Ensure URL has protocol
     const targetUrl = url.startsWith('http') ? url : `https://${url}`;
+    console.log('Normalized URL:', targetUrl);
 
     try {
       console.log(`Scanning website: ${targetUrl}`);
@@ -56,6 +60,7 @@ Deno.serve(async (req) => {
       clearTimeout(timeout);
 
       if (!response.ok) {
+        console.error('Failed to fetch website:', response.status, response.statusText);
         return new Response(
           JSON.stringify({ 
             success: false, 
@@ -66,7 +71,7 @@ Deno.serve(async (req) => {
       }
       
       const html = await response.text();
-      console.log('Successfully fetched HTML content');
+      console.log('Successfully fetched HTML content, length:', html.length);
 
       // Load HTML into cheerio
       const $ = load(html);
@@ -91,6 +96,7 @@ Deno.serve(async (req) => {
       console.log('Tracker script found:', hasTrackerScript);
 
       const pixelFound = hasTrackerScript && hasTrackerInit;
+      console.log('Final verification result:', { pixelFound, hasTrackerScript, hasTrackerInit });
 
       return new Response(
         JSON.stringify({ 
