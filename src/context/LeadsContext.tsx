@@ -44,14 +44,23 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const fetchLeads = async () => {
     try {
+      console.log('Fetching leads for user:', user);
       const response = await api.getLeads();
+      console.log('Leads response:', response);
+      
       if (response.success && response.leads) {
-        setLeads(response.leads.map((lead: any) => ({
+        const formattedLeads = response.leads.map((lead: any) => ({
           ...lead,
-          createdAt: new Date(lead.createdAt)
-        })));
+          createdAt: new Date(lead.createdAt || lead.created_at)
+        }));
+        console.log('Formatted leads:', formattedLeads);
+        setLeads(formattedLeads);
+      } else {
+        console.error('Invalid leads response:', response);
+        setError('Failed to fetch leads: Invalid response format');
       }
     } catch (error) {
+      console.error('Error fetching leads:', error);
       setError('Failed to fetch leads');
       toast.error('Failed to fetch leads');
     } finally {

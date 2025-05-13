@@ -56,7 +56,14 @@ async function handleResponse(response: Response): Promise<ApiResponse> {
 
   // If we have a successful status code but no user data, try to normalize the response
   if (response.ok && !responseData.user && typeof responseData === 'object') {
-    // Assume the entire response object might be the user data
+    // Check if the response is a leads array
+    if (Array.isArray(responseData)) {
+      return {
+        success: true,
+        leads: responseData
+      };
+    }
+    // Otherwise assume the entire response object might be the user data
     responseData = {
       success: true,
       user: responseData
@@ -147,11 +154,21 @@ export async function logout() {
 
 export async function getLeads() {
   try {
+    console.log('Fetching leads...');
     const response = await fetchApi(`${API_URL}/get_leads.php`, {
       method: 'GET',
     });
 
-    return handleResponse(response);
+    const data = await handleResponse(response);
+    console.log('Leads response:', data);
+
+    // If the response is successful but leads is not in the expected format,
+    // try to normalize it
+    if (data.success && !data.leads && Array.isArray(data)) {
+      return { success: true, leads: data };
+    }
+
+    return data;
   } catch (error) {
     console.error('Get leads error:', error);
     throw new Error('Failed to fetch leads');
