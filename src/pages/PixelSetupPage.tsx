@@ -56,21 +56,36 @@ const PixelSetupPage: React.FC = () => {
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error occurred' }));
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      // Log the raw response for debugging
+      const responseText = await response.text();
+      console.log('Raw response:', responseText);
+
+      // Try to parse the response as JSON
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse response:', parseError);
+        throw new Error('Invalid response from server');
       }
 
-      const data = await response.json();
-      
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      }
+
       if (data.success && data.pixelFound) {
         toast.success('Tracking script detected successfully!');
+        setSetupStep(1); // Return to first step after successful verification
       } else {
         toast.error(data.message || 'Tracking script not found. Please check the installation.');
       }
     } catch (error) {
       console.error('Scan error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to scan website. Please try again.');
+      toast.error(
+        error instanceof Error 
+          ? `Scan failed: ${error.message}` 
+          : 'Failed to scan website. Please check the URL and try again.'
+      );
     } finally {
       setIsScanning(false);
     }
