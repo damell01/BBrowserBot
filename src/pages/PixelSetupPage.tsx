@@ -19,9 +19,9 @@ const PixelSetupPage: React.FC = () => {
     };
     o=r.createElement('script');
     o.async=1;
-    o.src='https://tracker.browserbot.example/tracker.js';
+    o.src='${import.meta.env.VITE_API_URL}/tracker.js';
     r.getElementsByTagName('head')[0].appendChild(o);
-    b.BrowserBotTracker('init', '${user?.trackingId || "YOUR-TRACKING-ID"}');
+    b.BrowserBotTracker('init', '${user?.trackingId || user?.customer_id || "YOUR-TRACKING-ID"}');
   })(window,document);
 </script>
 <!-- End BrowserBot Tracking Script -->`;
@@ -51,7 +51,7 @@ const PixelSetupPage: React.FC = () => {
         },
         body: JSON.stringify({
           url: websiteUrl,
-          trackingId: user?.trackingId
+          trackingId: user?.trackingId || user?.customer_id
         }),
       });
 
