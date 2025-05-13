@@ -16,7 +16,7 @@ const PixelSetupPage: React.FC = () => {
   
   const pixelCode = `<!-- BrowserBot Tracking Script -->
 <script>
-  window.BrowserBotTrackingID = '${user?.customer_id || "YOUR-TRACKING-ID"}';
+  window.BrowserBotTrackingID = '${user?.trackingId || "YOUR-TRACKING-ID"}';
   (function(b,r,o,w,s){
     b.BrowserBotTracker=b.BrowserBotTracker||function(){
       (b.BrowserBotTracker.q=b.BrowserBotTracker.q||[]).push(arguments)
@@ -40,7 +40,7 @@ const PixelSetupPage: React.FC = () => {
   };
 
   const handleScanWebsite = async () => {
-    if (!user?.customer_id) {
+    if (!user?.trackingId) {
       toast.error('Please log in or ensure your account is properly set up.');
       return;
     }
@@ -54,7 +54,7 @@ const PixelSetupPage: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append('url', websiteUrl);
-      formData.append('customer_id', user.customer_id);
+      formData.append('trackingId', user.trackingId);
       formData.append('action', 'verify');
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/pixel.php`, {
