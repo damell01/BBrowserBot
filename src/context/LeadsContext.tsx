@@ -48,16 +48,36 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const response = await api.getLeads();
       console.log('Leads response:', response);
       
-      if (response.success && response.leads) {
-        const formattedLeads = response.leads.map((lead: any) => ({
-          ...lead,
-          createdAt: new Date(lead.createdAt || lead.created_at)
+      let leadsData: any[] = [];
+      
+      if (response.success) {
+        // Check if leads are nested under user object
+        if (response.user?.leads) {
+          leadsData = response.user.leads;
+        } 
+        // Check if leads are directly in response
+        else if (response.leads) {
+          leadsData = response.leads;
+        } 
+        else {
+          throw new Error('No leads data found in response');
+        }
+
+        const formattedLeads = leadsData.map((lead: any) => ({
+          id: lead.id || crypto.randomUUID(), // Generate ID if not provided
+          name: lead.name || '',
+          email: lead.email || '',
+          phone: lead.phone || '',
+          company: lead.company || '',
+          source: lead.source || lead.page || '',
+          createdAt: new Date(lead.createdAt || lead.created_at || lead.timestamp || Date.now()),
+          status: lead.status || 'new'
         }));
+
         console.log('Formatted leads:', formattedLeads);
         setLeads(formattedLeads);
       } else {
-        console.error('Invalid leads response:', response);
-        setError('Failed to fetch leads: Invalid response format');
+        throw new Error('Invalid response format');
       }
     } catch (error) {
       console.error('Error fetching leads:', error);
