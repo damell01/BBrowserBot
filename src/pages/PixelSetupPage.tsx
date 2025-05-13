@@ -43,8 +43,6 @@ const PixelSetupPage: React.FC = () => {
       
       if (response.success && response.pixelInstalled) {
         toast.success('✅ Pixel successfully installed!');
-        // Force reload to update user data and UI
-        window.location.reload();
       } else {
         toast.error('❌ Pixel not detected. Please check the installation.');
       }
