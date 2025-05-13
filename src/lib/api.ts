@@ -241,3 +241,45 @@ export async function verifyPixel(url: string, customer_id: string) {
     throw new Error('Failed to verify pixel');
   }
 }
+
+export async function grantAdminAccess(userId: string) {
+  try {
+    const response = await fetchApi(`${API_URL}/admin/grant_access.php`, {
+      method: 'POST',
+      body: JSON.stringify({ userId }),
+    });
+
+    const data = await handleResponse(response);
+    
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to grant admin access');
+    }
+
+    return data;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to grant admin access';
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+}
+
+export async function revokeAdminAccess(userId: string) {
+  try {
+    const response = await fetchApi(`${API_URL}/admin/revoke_access.php`, {
+      method: 'POST',
+      body: JSON.stringify({ userId }),
+    });
+
+    const data = await handleResponse(response);
+    
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to revoke admin access');
+    }
+
+    return data;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to revoke admin access';
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+}
