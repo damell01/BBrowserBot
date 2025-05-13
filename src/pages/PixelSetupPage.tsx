@@ -10,6 +10,7 @@ const PixelSetupPage: React.FC = () => {
   const [setupStep, setSetupStep] = useState(1);
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [isScanning, setIsScanning] = useState(false);
+  const [verificationSuccess, setVerificationSuccess] = useState(false);
   const { user } = useAuth();
   
   const pixelCode = `<!-- BrowserBot Tracking Script -->
@@ -38,10 +39,13 @@ const PixelSetupPage: React.FC = () => {
     }
 
     setIsScanning(true);
+    setVerificationSuccess(false);
+    
     try {
       const response = await verifyPixel(websiteUrl, user.customer_id);
       
       if (response.success) {
+        setVerificationSuccess(true);
         toast.success('✅ Pixel successfully installed!');
       } else {
         toast.error('❌ Pixel not detected. Please check the installation.');
@@ -158,6 +162,13 @@ const PixelSetupPage: React.FC = () => {
                 </>
               )}
             </button>
+
+            {verificationSuccess && (
+              <div className="mt-4 p-4 bg-emerald-900/30 border border-emerald-500/30 rounded-md flex items-center">
+                <CheckCircle className="h-5 w-5 text-emerald-400 mr-2" />
+                <span className="text-emerald-300">Pixel successfully installed!</span>
+              </div>
+            )}
           </div>
         </div>
       )
