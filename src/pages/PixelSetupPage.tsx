@@ -51,71 +51,30 @@ const PixelSetupPage: React.FC = () => {
       return;
     }
 
-    // Log user and tracking data
-    console.log('Scan attempt:', {
-      url: websiteUrl,
-      user: user,
-      trackingId: user.customer_id,
-      apiUrl: import.meta.env.VITE_API_URL
-    });
-
     setIsScanning(true);
     try {
-      console.log('Sending scan request to:', `${import.meta.env.VITE_API_URL}/scan-pixel`);
-      
-      const requestBody = {
-        url: websiteUrl,
-        trackingId: user.customer_id
-      };
-      console.log('Request payload:', requestBody);
-
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/scan-pixel`, {
+      // Send verification request to pixel.php
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/pixel.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          url: websiteUrl,
+          customer_id: user.customer_id
+        })
       });
 
-      // Log the raw response
-      const responseText = await response.text();
-      console.log('Raw API response:', responseText);
-
-      // Try to parse the response as JSON
-      let data;
-      try {
-        data = JSON.parse(responseText);
-        console.log('Parsed response data:', data);
-      } catch (parseError) {
-        console.error('Failed to parse response as JSON:', parseError);
-        throw new Error('Invalid response from server');
-      }
-
-      if (!data.success) {
-        console.error('API reported error:', data.error);
-        throw new Error(data.error || 'Failed to verify pixel');
-      }
-
-      if (data.pixelFound) {
-        console.log('Pixel verification successful');
-        toast.success('Tracking script detected successfully!');
-        
-        // Update user's pixel installation status if needed
-        if (!user.pixelInstalled) {
-          // You would typically make an API call here to update the status
-          console.log('Pixel installation confirmed for user:', user.customer_id);
-        }
+      const data = await response.json();
+      
+      if (data.success) {
+        toast.success('Tracking script verified successfully!');
       } else {
-        console.log('Pixel not found on website');
-        toast.error('Tracking script not found. Please check the installation.');
+        toast.error(data.message || 'Tracking script not found. Please check the installation.');
       }
     } catch (error) {
-      console.error('Scan error:', error);
-      toast.error(
-        error instanceof Error 
-          ? error.message 
-          : 'Failed to scan website. Please check the URL and try again.'
-      );
+      console.error('Verification error:', error);
+      toast.error('Failed to verify tracking script. Please try again.');
     } finally {
       setIsScanning(false);
     }
