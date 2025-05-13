@@ -40,7 +40,7 @@ const PixelVerificationPage: React.FC = () => {
       await new Promise(resolve => setTimeout(resolve, 5000));
 
       // Check if pixel fired
-      const verifyUrl = `${import.meta.env.VITE_API_URL}/verify_pixel.php?customer_id=${user.customer_id}&domain=${encodeURIComponent(websiteUrl)}`;
+      const verifyUrl = `${import.meta.env.VITE_API_URL}/pixel.php?customer_id=${user.customer_id}&domain=${encodeURIComponent(websiteUrl)}`;
       const response = await fetch(verifyUrl);
       const data = await response.json();
 
