@@ -16,7 +16,7 @@ const PixelSetupPage: React.FC = () => {
   
   const pixelCode = `<!-- BrowserBot Tracking Script -->
 <script>
-  window.BrowserBotTrackingID = '${user?.id || "YOUR-TRACKING-ID"}';
+  window.BrowserBotTrackingID = '${user?.customer_id || "YOUR-TRACKING-ID"}';
   (function(b,r,o,w,s){
     b.BrowserBotTracker=b.BrowserBotTracker||function(){
       (b.BrowserBotTracker.q=b.BrowserBotTracker.q||[]).push(arguments)
@@ -41,7 +41,7 @@ const PixelSetupPage: React.FC = () => {
 
   const handleScanWebsite = async () => {
     // Check for user authentication first
-    if (!user?.id) {
+    if (!user?.customer_id) {
       toast.error('Please log in to scan your website');
       return;
     }
@@ -55,7 +55,7 @@ const PixelSetupPage: React.FC = () => {
     console.log('Scan attempt:', {
       url: websiteUrl,
       user: user,
-      userId: user.id,
+      trackingId: user.customer_id,
       apiUrl: import.meta.env.VITE_API_URL
     });
 
@@ -65,7 +65,7 @@ const PixelSetupPage: React.FC = () => {
       
       const requestBody = {
         url: websiteUrl,
-        trackingId: user.id
+        trackingId: user.customer_id
       };
       console.log('Request payload:', requestBody);
 
@@ -103,7 +103,7 @@ const PixelSetupPage: React.FC = () => {
         // Update user's pixel installation status if needed
         if (!user.pixelInstalled) {
           // You would typically make an API call here to update the status
-          console.log('Pixel installation confirmed for user:', user.id);
+          console.log('Pixel installation confirmed for user:', user.customer_id);
         }
       } else {
         console.log('Pixel not found on website');
