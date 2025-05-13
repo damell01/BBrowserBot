@@ -12,24 +12,16 @@ const CustomerDashboardPage: React.FC = () => {
   const { user } = useAuth();
   const { leads, stats, updateLeadStatus } = useLeads();
   
-  console.log('CustomerDashboardPage - User:', user);
-  console.log('CustomerDashboardPage - All Leads:', leads);
-  
-  // Filter leads for current customer
   const customerLeads = leads;
   
-  console.log('CustomerDashboardPage - Filtered Customer Leads:', customerLeads);
-  
-  // Calculate dashboard stats
   const dashboardStats = {
     total: stats.total,
     new: stats.new,
-    trafficResolved: 68, // This would be calculated from actual traffic data in a real implementation
+    trafficResolved: 68,
     pipelineValue: stats.total * 1000
   };
 
   const handleExportCSV = () => {
-    // Convert leads to CSV format
     const headers = ['Name', 'Email', 'Phone', 'Company', 'Source', 'Status', 'Created At'];
     const csvData = customerLeads.map(lead => [
       lead.name,
@@ -41,13 +33,11 @@ const CustomerDashboardPage: React.FC = () => {
       new Date(lead.createdAt).toLocaleDateString()
     ]);
 
-    // Create CSV content
     const csvContent = [
       headers.join(','),
       ...csvData.map(row => row.join(','))
     ].join('\n');
 
-    // Create and download the file
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -59,7 +49,7 @@ const CustomerDashboardPage: React.FC = () => {
     
     toast.success('Leads exported successfully!');
   };
-  
+
   const handleStatusUpdate = async (id: string, status: string) => {
     try {
       await updateLeadStatus(id, status);
@@ -71,7 +61,6 @@ const CustomerDashboardPage: React.FC = () => {
   
   return (
     <DashboardLayout title="Dashboard">
-      {/* Pixel Installation Banner */}
       {user?.role === 'customer' && !user.pixelInstalled && (
         <div className="mb-6 bg-amber-900/30 border border-amber-500/30 rounded-lg p-4 flex items-center justify-between">
           <div className="flex items-center">
@@ -91,7 +80,6 @@ const CustomerDashboardPage: React.FC = () => {
         </div>
       )}
       
-      {/* Stats Cards */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-white">Overview</h2>
@@ -106,7 +94,6 @@ const CustomerDashboardPage: React.FC = () => {
         <StatsOverview stats={dashboardStats} />
       </div>
       
-      {/* Recent Leads */}
       <div>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-white">Recent Leads</h2>

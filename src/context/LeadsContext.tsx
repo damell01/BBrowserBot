@@ -44,18 +44,14 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const fetchLeads = async () => {
     try {
-      console.log('Fetching leads for user:', user);
       const response = await api.getLeads();
-      console.log('Leads response:', response);
       
       let leadsData: any[] = [];
       
       if (response.success) {
-        // Check if leads are nested under user object
         if (response.user?.leads) {
           leadsData = response.user.leads;
         } 
-        // Check if leads are directly in response
         else if (response.leads) {
           leadsData = response.leads;
         } 
@@ -64,7 +60,7 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
 
         const formattedLeads = leadsData.map((lead: any) => ({
-          id: lead.id || crypto.randomUUID(), // Generate ID if not provided
+          id: lead.id || crypto.randomUUID(),
           name: lead.name || '',
           email: lead.email || '',
           phone: lead.phone || '',
@@ -74,13 +70,11 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           status: lead.status || 'new'
         }));
 
-        console.log('Formatted leads:', formattedLeads);
         setLeads(formattedLeads);
       } else {
         throw new Error('Invalid response format');
       }
     } catch (error) {
-      console.error('Error fetching leads:', error);
       setError('Failed to fetch leads');
       toast.error('Failed to fetch leads');
     } finally {
@@ -100,7 +94,6 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         throw new Error('Failed to update lead status');
       }
     } catch (error) {
-      console.error('Error updating lead status:', error);
       toast.error('Failed to update lead status');
       throw error;
     }
