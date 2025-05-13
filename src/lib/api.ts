@@ -78,16 +78,45 @@ const defaultHeaders = {
   'Accept': 'application/json',
 };
 
-// Basic fetch wrapper with default options
-const fetchApi = (url: string, options: RequestInit = {}) => {
-  return fetch(url, {
-    ...options,
-    credentials: 'include', // Add credentials: 'include' to send cookies
-    headers: {
-      ...defaultHeaders,
-      ...(options.headers || {})
+// Enhanced fetch wrapper with better error handling
+const fetchApi = async (url: string, options: RequestInit = {}) => {
+  try {
+    const response = await fetch(url, {
+      ...options,
+      credentials: 'include', // Add credentials: 'include' to send cookies
+      headers: {
+        ...defaultHeaders,
+        ...(options.headers || {})
+      }
+    });
+
+    // Handle non-2xx responses
+    if (!response.ok) {
+      const errorData = await response.text();
+      let parsedError;
+      try {
+        parsedError = JSON.parse(errorData);
+      } catch (e) {
+        parsedError = { error: errorData || response.statusText };
+      }
+
+      throw new Error(
+        parsedError.error || 
+        `Server returned ${response.status}: ${response.statusText}`
+      );
     }
-  });
+
+    return response;
+  } catch (error) {
+    // Handle network errors and CORS issues
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      console.error('Network error or CORS issue:', error);
+      throw new Error(
+        'Unable to connect to the server. Please check your connection and try again.'
+      );
+    }
+    throw error;
+  }
 };
 
 export async function login(email: string, password: string) {
@@ -177,6 +206,8 @@ export async function getLeads() {
 
 export async function updateLeadStatus(id: string, status: string) {
   try {
+    console.log('Updating lead status:', { id, status, apiUrl: API_URL });
+    
     const response = await fetchApi(`${API_URL}/update_lead.php`, {
       method: 'POST',
       body: JSON.stringify({
@@ -185,10 +216,19 @@ export async function updateLeadStatus(id: string, status: string) {
       }),
     });
 
-    return handleResponse(response);
+    const data = await handleResponse(response);
+    
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to update lead status');
+    }
+
+    return data;
   } catch (error) {
     console.error('Update lead status error:', error);
-    throw new Error('Failed to update lead status');
+    // Provide more specific error message based on the error type
+    const errorMessage = error instanceof Error ? error.message : 'Failed to update lead status';
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
   }
 }
 
