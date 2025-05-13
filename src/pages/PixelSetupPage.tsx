@@ -13,7 +13,7 @@ const PixelSetupPage: React.FC = () => {
   
   const pixelCode = `<!-- BrowserBot Tracking Script -->
 <script>
-  window.customer_id = '${user?.trackingId || "YOUR-CUSTOMER-ID"}';
+  window.customer_id = '${user?.customer_id || "YOUR-CUSTOMER-ID"}';
   (function(b,r,o,w,s){
     b.BrowserBotTracker=b.BrowserBotTracker||function(){
       (b.BrowserBotTracker.q=b.BrowserBotTracker.q||[]).push(arguments)
