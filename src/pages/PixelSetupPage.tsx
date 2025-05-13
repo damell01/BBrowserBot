@@ -251,3 +251,5 @@ const PixelSetupPage: React.FC = () => {
 };
 
 export default PixelSetupPage;
+
+export default PixelSetupPage
