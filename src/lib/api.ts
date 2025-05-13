@@ -221,7 +221,7 @@ export async function getPixelScript() {
 
 export async function verifyPixel(url: string, customer_id: string) {
   try {
-    const response = await fetchApi(`${API_URL}/verify_pixel.php`, {
+    const response = await fetchApi(`${API_URL}/pixel.php`, {
       method: 'POST',
       body: JSON.stringify({
         url,
@@ -230,13 +230,11 @@ export async function verifyPixel(url: string, customer_id: string) {
     });
 
     const data = await handleResponse(response);
-    
-    if (data.success && data.pixelInstalled) {
-      // Force a page reload to update the user data
-      window.location.reload();
-    }
 
-    return data;
+    return {
+      success: !!data.success,
+      pixelInstalled: data.pixelInstalled === 1 || data.pixelInstalled === true
+    };
   } catch (error) {
     throw new Error('Failed to verify pixel');
   }
