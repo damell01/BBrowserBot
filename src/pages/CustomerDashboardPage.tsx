@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 
 const CustomerDashboardPage: React.FC = () => {
   const { user } = useAuth();
-  const { leads, stats } = useLeads();
+  const { leads, stats, updateLeadStatus } = useLeads();
   
   console.log('CustomerDashboardPage - User:', user);
   console.log('CustomerDashboardPage - All Leads:', leads);
@@ -60,6 +60,15 @@ const CustomerDashboardPage: React.FC = () => {
     toast.success('Leads exported successfully!');
   };
   
+  const handleStatusUpdate = async (id: string, status: string) => {
+    try {
+      await updateLeadStatus(id, status);
+      toast.success('Lead status updated successfully');
+    } catch (error) {
+      toast.error('Failed to update lead status');
+    }
+  };
+  
   return (
     <DashboardLayout title="Dashboard">
       {/* Pixel Installation Banner */}
@@ -107,7 +116,7 @@ const CustomerDashboardPage: React.FC = () => {
         </div>
         <LeadsTable 
           leads={customerLeads} 
-          onUpdateStatus={() => {}}
+          onUpdateStatus={handleStatusUpdate}
         />
       </div>
     </DashboardLayout>

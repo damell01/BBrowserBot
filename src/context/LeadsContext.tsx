@@ -18,7 +18,7 @@ interface LeadsContextType {
   leads: Lead[];
   loading: boolean;
   error: string | null;
-  updateLeadStatus: (id: string, status: Lead['status']) => void;
+  updateLeadStatus: (id: string, status: Lead['status']) => Promise<void>;
   stats: {
     total: number;
     new: number;
@@ -96,9 +96,13 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           lead.id === id ? { ...lead, status } : lead
         ));
         toast.success('Lead status updated');
+      } else {
+        throw new Error('Failed to update lead status');
       }
     } catch (error) {
+      console.error('Error updating lead status:', error);
       toast.error('Failed to update lead status');
+      throw error;
     }
   };
 
