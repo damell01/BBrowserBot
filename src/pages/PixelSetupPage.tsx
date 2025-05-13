@@ -16,7 +16,7 @@ const PixelSetupPage: React.FC = () => {
   
   const pixelCode = `<!-- BrowserBot Tracking Script -->
 <script>
-  window.customer_id = '${user?.customer_id || "YOUR-CUSTOMER-ID"}';
+  window.BrowserBotTrackingID = '${user?.id || "YOUR-TRACKING-ID"}';
   (function(b,r,o,w,s){
     b.BrowserBotTracker=b.BrowserBotTracker||function(){
       (b.BrowserBotTracker.q=b.BrowserBotTracker.q||[]).push(arguments)
@@ -49,27 +49,27 @@ const PixelSetupPage: React.FC = () => {
     console.log('Scan attempt:', {
       url: websiteUrl,
       user: user,
-      customerId: user?.customer_id,
+      userId: user?.id,
       apiUrl: import.meta.env.VITE_API_URL
     });
 
-    if (!user?.customer_id) {
-      console.error('No customer ID found in user data');
-      toast.error('No customer ID available');
+    if (!user?.id) {
+      console.error('No user ID found in user data');
+      toast.error('User ID not available');
       return;
     }
 
     setIsScanning(true);
     try {
-      console.log('Sending scan request to:', `${import.meta.env.VITE_API_URL}/pixel.php`);
+      console.log('Sending scan request to:', `${import.meta.env.VITE_API_URL}/scan-pixel`);
       
       const requestBody = {
         url: websiteUrl,
-        customer_id: user.customer_id
+        trackingId: user.id
       };
       console.log('Request payload:', requestBody);
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/pixel.php`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/scan-pixel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +99,12 @@ const PixelSetupPage: React.FC = () => {
       if (data.pixelFound) {
         console.log('Pixel verification successful');
         toast.success('Tracking script detected successfully!');
-        setSetupStep(1);
+        
+        // Update user's pixel installation status if needed
+        if (!user.pixelInstalled) {
+          // You would typically make an API call here to update the status
+          console.log('Pixel installation confirmed for user:', user.id);
+        }
       } else {
         console.log('Pixel not found on website');
         toast.error('Tracking script not found. Please check the installation.');
