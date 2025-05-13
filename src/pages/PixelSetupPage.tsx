@@ -54,7 +54,7 @@ const PixelSetupPage: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append('url', websiteUrl);
-      formData.append('customer_id', user.trackingId);
+      formData.append('tracking_id', user.trackingId);
       formData.append('action', 'verify');
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/pixel.php`, {
