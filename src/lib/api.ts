@@ -212,7 +212,7 @@ export async function getStats() {
 export async function getPixelScript() {
   try {
     const response = await fetchApi(`${API_URL}/pixel.js`, {
-      method: 'GET',
+      method: 'POST',
     });
 
     return handleResponse(response);
