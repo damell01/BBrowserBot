@@ -8,8 +8,8 @@ interface User {
   email: string;
   role: 'admin' | 'customer';
   companyName?: string;
-  pixel_installed: boolean;
-  customer_id: string;
+  pixelInstalled: boolean;
+  trackingId: string;
 }
 
 interface AuthContextType {
@@ -20,7 +20,6 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  updateUser: (userData: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,11 +40,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     setLoading(false);
   }, []);
-
-  const updateUser = (userData: User) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
-  };
 
   const login = async (email: string, password: string) => {
     try {
@@ -109,8 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         logout, 
         isAuthenticated: !!user,
-        isAdmin: user?.role === 'admin',
-        updateUser
+        isAdmin: user?.role === 'admin'
       }}
     >
       {children}
