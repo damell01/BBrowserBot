@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { Code, Copy, CheckCircle, ExternalLink, ArrowRight, Lightbulb, Search, AlertCircle, Loader2, Scale, FileText } from 'lucide-react';
+import { Code, Copy, CheckCircle, ExternalLink, ArrowRight, Search, AlertCircle, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { verifyPixel } from '../lib/api';
@@ -128,38 +128,47 @@ const PixelSetupPage: React.FC = () => {
       description: "Enter your website URL to verify that the tracking script has been installed correctly.",
       content: (
         <div className="mt-4 space-y-4">
-          <div className="bg-gray-900 rounded-md p-4 border border-gray-700">
-            <div className="mb-4">
-              <label htmlFor="websiteUrl" className="block text-sm font-medium text-gray-300 mb-2">
-                Website URL
-              </label>
-              <input
-                type="url"
-                id="websiteUrl"
-                value={websiteUrl}
-                onChange={(e) => setWebsiteUrl(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="https://yourwebsite.com"
-              />
+          {user?.pixelInstalled ? (
+            <div className="bg-emerald-900/30 rounded-lg p-4 border border-emerald-500/30">
+              <div className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-emerald-400 mr-3" />
+                <span className="text-emerald-300">Pixel successfully installed!</span>
+              </div>
             </div>
-            <button
-              onClick={handleScanWebsite}
-              disabled={isScanning}
-              className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
-            >
-              {isScanning ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Scanning...
-                </>
-              ) : (
-                <>
-                  <Search className="mr-2 h-4 w-4" />
-                  Scan Website
-                </>
-              )}
-            </button>
-          </div>
+          ) : (
+            <div className="bg-gray-900 rounded-md p-4 border border-gray-700">
+              <div className="mb-4">
+                <label htmlFor="websiteUrl" className="block text-sm font-medium text-gray-300 mb-2">
+                  Website URL
+                </label>
+                <input
+                  type="url"
+                  id="websiteUrl"
+                  value={websiteUrl}
+                  onChange={(e) => setWebsiteUrl(e.target.value)}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="https://yourwebsite.com"
+                />
+              </div>
+              <button
+                onClick={handleScanWebsite}
+                disabled={isScanning}
+                className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+              >
+                {isScanning ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Scanning...
+                  </>
+                ) : (
+                  <>
+                    <Search className="mr-2 h-4 w-4" />
+                    Scan Website
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       )
     }
