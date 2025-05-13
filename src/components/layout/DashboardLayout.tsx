@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
-import { Menu } from 'lucide-react';
+import { Menu, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 interface DashboardLayoutProps {
@@ -39,6 +39,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Status Badge */}
+        <div className="bg-emerald-900/30 border-b border-emerald-500/30 py-1.5">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+            <CheckCircle className="w-4 h-4 text-emerald-400 mr-2" />
+            <span className="text-sm text-emerald-300">Tracking pixel is active and collecting data</span>
+          </div>
+        </div>
+
         <header className="flex items-center justify-between h-16 px-6 bg-gray-900 border-b border-gray-800">
           {isMobile && (
             <button 
