@@ -4,8 +4,7 @@ import StatsOverview from '../components/dashboard/StatsOverview';
 import LeadsTable from '../components/dashboard/LeadsTable';
 import { useLeads } from '../context/LeadsContext';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
-import { ArrowUpRight, AlertTriangle, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const CustomerDashboardPage: React.FC = () => {
@@ -61,25 +60,6 @@ const CustomerDashboardPage: React.FC = () => {
   
   return (
     <DashboardLayout title="Dashboard">
-      {user?.role === 'customer' && !user.pixelInstalled && (
-        <div className="mb-6 bg-amber-900/30 border border-amber-500/30 rounded-lg p-4 flex items-center justify-between">
-          <div className="flex items-center">
-            <AlertTriangle className="h-5 w-5 text-amber-400 mr-3" />
-            <div>
-              <h3 className="font-medium text-amber-300">Tracking Pixel Not Installed</h3>
-              <p className="text-amber-200/70 text-sm">Install the tracking pixel to start collecting leads from your website.</p>
-            </div>
-          </div>
-          <Link
-            to="/pixel-setup"
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-amber-900 bg-amber-400 hover:bg-amber-500"
-          >
-            Setup Now
-            <ArrowUpRight className="ml-2 h-4 w-4" />
-          </Link>
-        </div>
-      )}
-      
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-white">Overview</h2>
