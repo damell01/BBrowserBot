@@ -4,6 +4,7 @@ import { Code, Copy, CheckCircle, ExternalLink, ArrowRight, Search, AlertCircle,
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { verifyPixel } from '../lib/api';
+const [pixelInstalledState, setPixelInstalledState] = useState(user?.pixelInstalled ?? false);
 
 const PixelSetupPage: React.FC = () => {
   const [copied, setCopied] = useState(false);
