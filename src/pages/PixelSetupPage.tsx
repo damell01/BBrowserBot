@@ -177,7 +177,6 @@ const PixelSetupPage: React.FC = () => {
   return (
     <DashboardLayout title="Bot Setup">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700 mb-6">
           <div className="bg-gray-900 border-b border-gray-700 p-6">
             <h2 className="text-xl font-bold text-white mb-2">Tracking Script Setup</h2>
