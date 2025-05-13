@@ -13,7 +13,7 @@ const PixelSetupPage: React.FC = () => {
   
   const pixelCode = `<!-- BrowserBot Tracking Script -->
 <script>
-  window.BrowserBotTrackingID = '${user?.trackingId || "YOUR-TRACKING-ID"}';
+  window.customer_id = '${user?.trackingId || "YOUR-CUSTOMER-ID"}';
   (function(b,r,o,w,s){
     b.BrowserBotTracker=b.BrowserBotTracker||function(){
       (b.BrowserBotTracker.q=b.BrowserBotTracker.q||[]).push(arguments)
@@ -43,7 +43,7 @@ const PixelSetupPage: React.FC = () => {
     }
 
     if (!user?.trackingId) {
-      toast.error('No tracking ID available');
+      toast.error('No customer ID available');
       return;
     }
 
@@ -56,7 +56,7 @@ const PixelSetupPage: React.FC = () => {
         },
         body: JSON.stringify({
           url: websiteUrl,
-          tracking_id: user.trackingId
+          customer_id: user.trackingId
         }),
       });
 
