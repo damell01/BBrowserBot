@@ -40,7 +40,6 @@ const PixelSetupPage: React.FC = () => {
   };
 
   const handleScanWebsite = async () => {
-    // Check for user authentication first
     if (!user?.customer_id) {
       toast.error('Please log in to scan your website');
       return;
@@ -53,17 +52,19 @@ const PixelSetupPage: React.FC = () => {
 
     setIsScanning(true);
     try {
-      // Send verification request to pixel.php
+      const formData = new FormData();
+      formData.append('url', websiteUrl);
+      formData.append('customer_id', user.customer_id);
+      formData.append('action', 'verify');
+
       const response = await fetch(`${import.meta.env.VITE_API_URL}/pixel.php`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url: websiteUrl,
-          customer_id: user.customer_id
-        })
+        body: formData
       });
+
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+      }
 
       const data = await response.json();
       
