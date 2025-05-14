@@ -2,6 +2,7 @@ import React from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import StatsOverview from '../components/dashboard/StatsOverview';
 import LeadsTable from '../components/dashboard/LeadsTable';
+import WebsiteHits from '../components/dashboard/WebsiteHits';
 import { useLeads } from '../context/LeadsContext';
 import { useAuth } from '../context/AuthContext';
 import { Download } from 'lucide-react';
@@ -60,31 +61,41 @@ const CustomerDashboardPage: React.FC = () => {
   
   return (
     <DashboardLayout title="Dashboard">
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-white">Overview</h2>
-          <button
-            onClick={handleExportCSV}
-            className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white text-sm font-medium transition-colors"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Export Leads
-          </button>
+      <div className="space-y-8">
+        {/* Overview Section */}
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-white">Overview</h2>
+            <button
+              onClick={handleExportCSV}
+              className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white text-sm font-medium transition-colors"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export Leads
+            </button>
+          </div>
+          <StatsOverview stats={dashboardStats} />
         </div>
-        <StatsOverview stats={dashboardStats} />
-      </div>
-      
-      <div>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-white">Recent Leads</h2>
-          <span className="text-xs bg-blue-900/30 text-blue-400 rounded-full px-3 py-1 border border-blue-500/30">
-            Updates every minute
-          </span>
+        
+        {/* Website Hits Section */}
+        <div>
+          <h2 className="text-xl font-semibold text-white mb-4">Website Traffic</h2>
+          <WebsiteHits />
         </div>
-        <LeadsTable 
-          leads={customerLeads} 
-          onUpdateStatus={handleStatusUpdate}
-        />
+        
+        {/* Leads Section */}
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-white">Recent Leads</h2>
+            <span className="text-xs bg-blue-900/30 text-blue-400 rounded-full px-3 py-1 border border-blue-500/30">
+              Updates every minute
+            </span>
+          </div>
+          <LeadsTable 
+            leads={customerLeads} 
+            onUpdateStatus={handleStatusUpdate}
+          />
+        </div>
       </div>
     </DashboardLayout>
   );
