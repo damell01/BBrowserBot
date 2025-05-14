@@ -21,6 +21,7 @@ const CustomersPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copyingScript, setCopyingScript] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCustomers();
@@ -49,11 +50,20 @@ const CustomersPage: React.FC = () => {
   };
 
   const handleCopyScript = async (customerId: string) => {
+    if (!customerId) {
+      toast.error('Invalid customer ID');
+      return;
+    }
+
     try {
-      const response = await getPixelScript(customerId);
+      setCopyingScript(customerId);
+      console.log('Fetching script for customer:', customerId);
       
-      if (!response.success || !response.script) {
-        throw new Error('Failed to get tracking script');
+      const response = await getPixelScript(customerId);
+      console.log('Script response:', response);
+      
+      if (!response.script) {
+        throw new Error('No tracking script available');
       }
 
       await navigator.clipboard.writeText(response.script);
@@ -66,7 +76,11 @@ const CustomersPage: React.FC = () => {
     } catch (error) {
       console.error('Copy script error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to copy script');
-      setCopiedId(null);
+    } finally {
+      setCopyingScript(null);
+      setTimeout(() => {
+        setCopiedId(null);
+      }, 3000);
     }
   };
 
@@ -139,12 +153,22 @@ const CustomersPage: React.FC = () => {
                   <div className="flex items-center gap-4">
                     <button
                       onClick={() => handleCopyScript(customer.customer_id)}
-                      className="flex items-center px-4 py-2 text-sm font-medium text-white bg-gray-700 rounded-md hover:bg-gray-600 transition-colors"
+                      disabled={copyingScript === customer.customer_id}
+                      className={`flex items-center px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${
+                        copyingScript === customer.customer_id
+                          ? 'bg-gray-600 cursor-not-allowed'
+                          : 'bg-gray-700 hover:bg-gray-600'
+                      }`}
                     >
                       {copiedId === customer.customer_id ? (
                         <>
                           <CheckCircle className="w-4 h-4 mr-2 text-emerald-400" />
                           Copied!
+                        </>
+                      ) : copyingScript === customer.customer_id ? (
+                        <>
+                          <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Copying...
                         </>
                       ) : (
                         <>
