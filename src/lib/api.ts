@@ -332,3 +332,44 @@ export async function exportCustomerLeads(customerId: string) {
     throw error;
   }
 }
+
+export async function createStripeCheckoutSession(priceId: string) {
+  try {
+    const response = await fetchApi(`${API_URL}/create-checkout-session.php`, {
+      method: 'POST',
+      body: JSON.stringify({ priceId }),
+    });
+
+    const data = await handleResponse(response);
+    
+    if (!data.success || !data.url) {
+      throw new Error(data.error || 'Failed to create checkout session');
+    }
+
+    return data;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create checkout session';
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+}
+
+export async function redirectToCustomerPortal() {
+  try {
+    const response = await fetchApi(`${API_URL}/create-portal-session.php`, {
+      method: 'POST',
+    });
+
+    const data = await handleResponse(response);
+    
+    if (!data.success || !data.url) {
+      throw new Error(data.error || 'Failed to create portal session');
+    }
+
+    return data;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create portal session';
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+}
