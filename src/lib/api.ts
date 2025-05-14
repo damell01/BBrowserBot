@@ -242,6 +242,26 @@ export async function verifyPixel(url: string, customer_id: string) {
   }
 }
 
+export async function getCustomers() {
+  try {
+    const response = await fetchApi(`${API_URL}/get_customers.php`, {
+      method: 'GET',
+    });
+
+    const data = await handleResponse(response);
+    
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to fetch customers');
+    }
+
+    return data;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch customers';
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+}
+
 export async function grantAdminAccess(userId: string) {
   try {
     const response = await fetchApi(`${API_URL}/admin/grant_access.php`, {
