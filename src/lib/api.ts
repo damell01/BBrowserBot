@@ -373,3 +373,28 @@ export async function redirectToCustomerPortal() {
     throw new Error(errorMessage);
   }
 }
+
+export async function getTrafficStats(params?: {
+  page?: string;
+  start?: string;
+  end?: string;
+  sort?: string;
+  order?: string;
+}) {
+  try {
+    const queryParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value) queryParams.append(key, value);
+      });
+    }
+
+    const response = await fetchApi(`${API_URL}/get_traffic.php?${queryParams}`, {
+      method: 'GET',
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    throw new Error('Failed to fetch traffic stats');
+  }
+}
