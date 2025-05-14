@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
-import { Menu } from 'lucide-react';
+import { Menu, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useLeads } from '../../context/LeadsContext';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -12,6 +13,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
+  const { stats, leadsQuota } = useLeads();
   
   useEffect(() => {
     const checkIfMobile = () => {
@@ -29,6 +31,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
+
+  const getNextTier = (currentLeads: number) => {
+    const tiers = [500, 1000, 2500, 5000];
+    return tiers.find(tier => tier > currentLeads) || 'Custom';
+  };
   
   return (
     <div className="flex h-screen bg-gray-950 text-gray-100">
@@ -39,6 +46,31 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Leads Usage Banner - Only show for customers */}
+        {user?.role === 'customer' && (
+          <div className="bg-gray-800 border-b border-gray-700">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-400">
+                    {stats.total.toLocaleString()} / {leadsQuota.toLocaleString()} leads
+                  </span>
+                  <ChevronRight className="h-4 w-4 text-gray-500" />
+                  <span className="text-sm text-blue-400">
+                    Next tier at {getNextTier(leadsQuota).toLocaleString()} leads
+                  </span>
+                </div>
+                <div className="h-1.5 w-32 bg-gray-700 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-blue-500 rounded-full"
+                    style={{ width: `${Math.min((stats.total / leadsQuota) * 100, 100)}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <header className="flex items-center justify-between h-16 px-6 bg-gray-900 border-b border-gray-800">
           {isMobile && (
             <button 
