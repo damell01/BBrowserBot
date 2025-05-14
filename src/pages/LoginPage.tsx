@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Bot, Mail, Lock } from 'lucide-react';
+import { Bot, Mail, Lock, Info } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -9,7 +9,7 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const { login, resetPassword } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,6 +63,28 @@ const LoginPage: React.FC = () => {
           <p className="mt-2 text-sm text-gray-400">
             Sign in to access your visitor tracking dashboard
           </p>
+        </div>
+
+        {/* Test Credentials Box */}
+        <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+          <div className="flex items-center gap-2 mb-3">
+            <Info className="h-5 w-5 text-blue-400" />
+            <h3 className="text-sm font-medium text-white">Test Credentials</h3>
+          </div>
+          <div className="space-y-2 text-sm">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <p className="text-gray-400">Customer Login:</p>
+                <p className="text-white">Email: Test1@email.com</p>
+                <p className="text-white">Password: 123</p>
+              </div>
+              <div>
+                <p className="text-gray-400">Admin Login:</p>
+                <p className="text-white">Email: admin@example.com</p>
+                <p className="text-white">Password: admin123</p>
+              </div>
+            </div>
+          </div>
         </div>
         
         {!showForgotPassword ? (
