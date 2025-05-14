@@ -19,6 +19,41 @@ async function fetchApi(url: string, options: RequestInit = {}) {
   return fetch(url, { ...defaultOptions, ...options });
 }
 
+export async function login(email: string, password: string) {
+  try {
+    const response = await fetchApi(`${API_URL}/auth/login.php`, {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    throw new Error('Login failed');
+  }
+}
+
+export async function register(email: string, password: string, name: string, companyName: string) {
+  try {
+    const response = await fetchApi(`${API_URL}/auth/register.php`, {
+      method: 'POST',
+      body: JSON.stringify({ email, password, name, company_name: companyName }),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    throw new Error('Registration failed');
+  }
+}
+
+export async function logout() {
+  try {
+    const response = await fetchApi(`${API_URL}/auth/logout.php`, {
+      method: 'POST',
+    });
+    return handleResponse(response);
+  } catch (error) {
+    throw new Error('Logout failed');
+  }
+}
+
 export async function getCustomers() {
   try {
     const response = await fetchApi(`${API_URL}/get_customers.php`, {
