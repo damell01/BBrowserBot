@@ -19,6 +19,8 @@ interface LeadsContextType {
   loading: boolean;
   error: string | null;
   updateLeadStatus: (id: string, status: Lead['status']) => Promise<void>;
+  leadsQuota: number;
+  updateLeadsQuota: (newQuota: number) => Promise<void>;
   stats: {
     total: number;
     new: number;
@@ -34,11 +36,16 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [leadsQuota, setLeadsQuota] = useState(500); // Default quota
   const { user } = useAuth();
 
   useEffect(() => {
     if (user) {
       fetchLeads();
+      // Set initial quota from user data if available
+      if (user.leadsQuota) {
+        setLeadsQuota(user.leadsQuota);
+      }
     }
   }, [user]);
 
@@ -99,6 +106,20 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  const updateLeadsQuota = async (newQuota: number) => {
+    try {
+      const response = await api.updateLeadsQuota(newQuota);
+      if (response.success) {
+        setLeadsQuota(newQuota);
+        return;
+      }
+      throw new Error('Failed to update leads quota');
+    } catch (error) {
+      toast.error('Failed to update leads quota');
+      throw error;
+    }
+  };
+
   const stats = {
     total: leads.length,
     new: leads.filter(lead => lead.status === 'new').length,
@@ -114,6 +135,8 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         loading,
         error,
         updateLeadStatus,
+        leadsQuota,
+        updateLeadsQuota,
         stats
       }}
     >
