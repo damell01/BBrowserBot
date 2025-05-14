@@ -24,6 +24,17 @@ export async function getWebsiteHits(params?: {
   }
 }
 
+export async function getCustomers() {
+  try {
+    const response = await fetchApi(`${API_URL}/customers.php`, {
+      method: 'GET',
+    });
+    return handleResponse(response);
+  } catch (error) {
+    throw new Error('Failed to fetch customers');
+  }
+}
+
 export async function exportCustomerLeads(customerId: string) {
   try {
     const response = await fetchApi(`${API_URL}/export-leads.php`, {
