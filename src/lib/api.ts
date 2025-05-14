@@ -303,3 +303,32 @@ export async function revokeAdminAccess(userId: string) {
     throw new Error(errorMessage);
   }
 }
+
+export async function exportCustomerLeads(customerId: string) {
+  try {
+    const response = await fetch(`${API_URL}/export_leads_csv.php?customer_id=${customerId}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to export leads');
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `leads_${customerId}_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    toast.success('Leads exported successfully!');
+  } catch (error) {
+    console.error('Export error:', error);
+    toast.error('Failed to export leads');
+    throw error;
+  }
+}
