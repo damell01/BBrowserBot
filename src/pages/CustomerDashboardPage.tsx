@@ -30,7 +30,9 @@ const CustomerDashboardPage: React.FC = () => {
       const response = await getTrafficStats();
       if (response.success && response.pages) {
         setTrafficData(response.pages);
-        setTotalHits(response.pages.reduce((sum: number, page: TrafficData) => sum + page.hits, 0));
+        // Calculate total hits
+        const total = response.pages.reduce((sum, page) => sum + page.hits, 0);
+        setTotalHits(total);
       }
     } catch (error) {
       console.error('Failed to fetch traffic data:', error);

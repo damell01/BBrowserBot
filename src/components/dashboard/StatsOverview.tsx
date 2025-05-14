@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, BarChart, TrendingUp, DollarSign, Eye } from 'lucide-react';
+import { Users, Eye, TrendingUp, DollarSign } from 'lucide-react';
 import MetricsCard from './MetricsCard';
 
 interface StatsOverviewProps {
