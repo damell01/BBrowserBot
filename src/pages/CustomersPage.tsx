@@ -61,6 +61,10 @@ const CustomersPage: React.FC = () => {
       
       const response = await getPixelScript(customerId);
       console.log('Script response:', response);
+
+      if (!response.success) {
+        throw new Error('Failed to get tracking script');
+      }
       
       if (!response.script) {
         throw new Error('No tracking script available');
@@ -70,6 +74,7 @@ const CustomersPage: React.FC = () => {
       setCopiedId(customerId);
       toast.success('Tracking script copied to clipboard!');
       
+      // Reset copied state after 3 seconds
       setTimeout(() => {
         setCopiedId(null);
       }, 3000);
@@ -78,9 +83,6 @@ const CustomersPage: React.FC = () => {
       toast.error(error instanceof Error ? error.message : 'Failed to copy script');
     } finally {
       setCopyingScript(null);
-      setTimeout(() => {
-        setCopiedId(null);
-      }, 3000);
     }
   };
 
