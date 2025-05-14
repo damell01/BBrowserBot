@@ -9,6 +9,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 import CustomersPage from './pages/CustomersPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import AdminBillingPage from './pages/AdminBillingPage';
+import ManageUsersPage from './pages/ManageUsersPage';
 import CustomerDashboardPage from './pages/CustomerDashboardPage';
 import PixelSetupPage from './pages/PixelSetupPage';
 import LegalBestPracticesPage from './pages/LegalBestPracticesPage';
@@ -72,6 +73,15 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="admin">
                   <AdminBillingPage />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
+              path="/admin/users" 
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <ManageUsersPage />
                 </ProtectedRoute>
               } 
             />
