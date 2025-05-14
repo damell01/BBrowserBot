@@ -41,8 +41,8 @@ const AdminDashboardPage: React.FC = () => {
       setLoading(true);
       const response = await getCustomers();
       console.log('Customer response:', response);
-      if (response.success && response.data) {
-        setCustomers(response.data);
+      if (response.success && response.user?.data) {
+        setCustomers(response.user.data);
       }
     } catch (error) {
       console.error('Failed to fetch customers:', error);
