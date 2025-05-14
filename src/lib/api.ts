@@ -1,3 +1,70 @@
+const API_URL = import.meta.env.VITE_API_URL;
+
+interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+async function fetchApi(url: string, options: RequestInit = {}) {
+  const token = localStorage.getItem('token');
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...options.headers,
+  };
+
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  });
+
+  return response;
+}
+
+async function handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'An error occurred');
+  }
+  return data;
+}
+
+export async function login(email: string, password: string) {
+  try {
+    const response = await fetchApi(`${API_URL}/auth/login.php`, {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    throw new Error('Login failed');
+  }
+}
+
+export async function register(email: string, password: string, name: string, companyName: string) {
+  try {
+    const response = await fetchApi(`${API_URL}/auth/register.php`, {
+      method: 'POST',
+      body: JSON.stringify({ email, password, name, companyName }),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    throw new Error('Registration failed');
+  }
+}
+
+export async function logout() {
+  try {
+    const response = await fetchApi(`${API_URL}/auth/logout.php`, {
+      method: 'POST',
+    });
+    return handleResponse(response);
+  } catch (error) {
+    throw new Error('Logout failed');
+  }
+}
+
 // Add this function to the existing api.ts file
 export async function getCustomers() {
   try {
