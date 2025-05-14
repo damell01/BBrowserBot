@@ -21,7 +21,7 @@ async function fetchApi(url: string, options: RequestInit = {}) {
 
 export async function login(email: string, password: string) {
   try {
-    const response = await fetchApi(`${API_URL}/auth/login.php`, {
+    const response = await fetchApi(`${API_URL}/auth.php`, {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
