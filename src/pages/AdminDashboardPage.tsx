@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import StatsOverview from '../components/dashboard/StatsOverview';
-import LeadsTable from '../components/dashboard/LeadsTable';
+import CustomerLeadsModal from '../components/modals/CustomerLeadsModal';
 import { useLeads } from '../context/LeadsContext';
 import { getCustomers } from '../lib/api';
 import { 
@@ -30,7 +29,8 @@ const AdminDashboardPage: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [showLeadsModal, setShowLeadsModal] = useState(false);
 
   useEffect(() => {
     fetchCustomers();
@@ -50,7 +50,12 @@ const AdminDashboardPage: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
+  const handleViewCustomerLeads = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setShowLeadsModal(true);
+  };
+
   // Calculate admin metrics from real data
   const totalCustomers = customers.length;
   const activeCustomers = customers.filter(c => parseInt(c.lead_count) > 0).length;
@@ -63,6 +68,11 @@ const AdminDashboardPage: React.FC = () => {
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     customer.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Filter leads for selected customer
+  const selectedCustomerLeads = leads.filter(lead => 
+    selectedCustomer && lead.userId === selectedCustomer.id
   );
 
   return (
@@ -148,17 +158,20 @@ const AdminDashboardPage: React.FC = () => {
                   className="bg-gray-900 rounded-lg p-4 border border-gray-700 hover:border-blue-500/30 transition-all duration-200"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
+                    <button
+                      onClick={() => handleViewCustomerLeads(customer)}
+                      className="flex items-center space-x-4 hover:text-blue-400 transition-colors"
+                    >
                       <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
                         <span className="text-lg font-medium text-white">
                           {customer.name.charAt(0)}
                         </span>
                       </div>
-                      <div>
+                      <div className="text-left">
                         <h4 className="font-medium text-white">{customer.name}</h4>
                         <p className="text-sm text-gray-400">{customer.email}</p>
                       </div>
-                    </div>
+                    </button>
                     
                     <div className="flex items-center space-x-4">
                       <div className="text-right">
@@ -180,7 +193,7 @@ const AdminDashboardPage: React.FC = () => {
                         )}
                         
                         <button 
-                          onClick={() => setSelectedCustomerId(customer.id)}
+                          onClick={() => handleViewCustomerLeads(customer)}
                           className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-md transition-colors"
                         >
                           <Settings className="w-4 h-4" />
@@ -194,6 +207,17 @@ const AdminDashboardPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Customer Leads Modal */}
+      {selectedCustomer && (
+        <CustomerLeadsModal
+          isOpen={showLeadsModal}
+          onClose={() => setShowLeadsModal(false)}
+          customer={selectedCustomer}
+          leads={selectedCustomerLeads}
+          onUpdateStatus={updateLeadStatus}
+        />
+      )}
       
       {/* Leads Overview */}
       <div>
