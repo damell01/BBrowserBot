@@ -14,7 +14,6 @@ interface Customer {
   lead_count: string;
   lead_limit: string;
   last_active: string;
-  active: boolean;
 }
 
 const AdminDashboardPage: React.FC = () => {
@@ -72,11 +71,11 @@ const AdminDashboardPage: React.FC = () => {
                 
                 <div className="flex items-center gap-4">
                   <span className={`px-2 py-1 text-xs rounded-full ${
-                    customer.active
+                    parseInt(customer.lead_count) > 0
                       ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                       : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                   }`}>
-                    {customer.active ? 'Active' : 'Inactive'}
+                    {parseInt(customer.lead_count) > 0 ? 'Active' : 'Inactive'}
                   </span>
 
                   <button
