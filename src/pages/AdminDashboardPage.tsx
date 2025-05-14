@@ -47,6 +47,20 @@ const AdminDashboardPage: React.FC = () => {
                   {customer.role}
                 </span>
                 <button
-                  onClick={() => customer.role === 'admin' 
+                  onClick={() => (customer.role === 'admin' 
                     ? handleRevokeAdmin(customer.id)
-                    : handleGrantAdmin(customer.id)
+                    : handleGrantAdmin(customer.id))}
+                  className="text-sm font-medium px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-white transition-colors"
+                >
+                  {customer.role === 'admin' ? 'Revoke Admin' : 'Grant Admin'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+};
+
+export default AdminDashboardPage;
