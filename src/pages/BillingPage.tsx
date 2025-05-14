@@ -1,10 +1,13 @@
 import React from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { CreditCard, AlertCircle, CheckCircle2, TrendingUp } from 'lucide-react';
+import { CreditCard, AlertCircle, CheckCircle2, TrendingUp, Users } from 'lucide-react';
 import { redirectToCustomerPortal } from '../lib/api';
+import { useLeads } from '../context/LeadsContext';
 import toast from 'react-hot-toast';
 
 const BillingPage: React.FC = () => {
+  const { stats } = useLeads();
+
   const handleUpgrade = async () => {
     try {
       const { url } = await redirectToCustomerPortal();
@@ -30,6 +33,38 @@ const BillingPage: React.FC = () => {
             >
               Manage Subscription
             </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="bg-gray-900 rounded-lg border border-gray-700 p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-blue-500/20 rounded-lg">
+                  <Users className="w-5 h-5 text-blue-400" />
+                </div>
+                <h4 className="font-medium text-white">Total Leads</h4>
+              </div>
+              <p className="text-2xl font-bold text-white">{stats.total.toLocaleString()}</p>
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-sm text-gray-400">New this month:</span>
+                <span className="text-sm font-medium text-emerald-400">{stats.new.toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div className="bg-gray-900 rounded-lg border border-gray-700 p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-emerald-500/20 rounded-lg">
+                  <TrendingUp className="w-5 h-5 text-emerald-400" />
+                </div>
+                <h4 className="font-medium text-white">Conversion Rate</h4>
+              </div>
+              <p className="text-2xl font-bold text-white">
+                {((stats.converted / stats.total) * 100).toFixed(1)}%
+              </p>
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-sm text-gray-400">Converted leads:</span>
+                <span className="text-sm font-medium text-emerald-400">{stats.converted.toLocaleString()}</span>
+              </div>
+            </div>
           </div>
 
           <div className="p-4 bg-gray-900 rounded-lg border border-gray-700">
