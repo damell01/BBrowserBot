@@ -56,9 +56,12 @@ const CustomersPage: React.FC = () => {
         setCopiedId(customerId);
         toast.success('Tracking script copied to clipboard!');
         
+        // Reset copy state after 3 seconds
         setTimeout(() => {
           setCopiedId(null);
         }, 3000);
+      } else {
+        throw new Error('Failed to get tracking script');
       }
     } catch (error) {
       console.error('Failed to copy script:', error);
