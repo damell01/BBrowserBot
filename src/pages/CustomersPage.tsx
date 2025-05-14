@@ -49,41 +49,24 @@ const CustomersPage: React.FC = () => {
   };
 
   const handleCopyScript = async (customerId: string) => {
-    if (!customerId) {
-      toast.error('Invalid customer ID');
-      return;
-    }
-
     try {
       const response = await getPixelScript(customerId);
       
-      if (!response.success) {
-        throw new Error('Failed to retrieve tracking script');
-      }
-
-      if (!response.script) {
-        throw new Error('No tracking script available for this customer');
+      if (!response.success || !response.script) {
+        throw new Error('Failed to get tracking script');
       }
 
       await navigator.clipboard.writeText(response.script);
       setCopiedId(customerId);
       toast.success('Tracking script copied to clipboard!');
       
-      // Reset copy state after 3 seconds
       setTimeout(() => {
         setCopiedId(null);
       }, 3000);
     } catch (error) {
-      // Reset copy state in case of error
+      console.error('Copy script error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to copy script');
       setCopiedId(null);
-      
-      // Handle different error types
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : 'Failed to copy tracking script';
-      
-      console.error('Failed to copy script:', error);
-      toast.error(errorMessage);
     }
   };
 
