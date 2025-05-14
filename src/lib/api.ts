@@ -1,4 +1,17 @@
 // Add this function to the existing api.ts file
+export async function getCustomers() {
+  try {
+    const response = await fetchApi(`${API_URL}/get_customers.php`, {
+      method: 'GET',
+      credentials: 'include' // Important for session cookies
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    throw new Error('Failed to fetch customers');
+  }
+}
+
 export async function getTrafficStats(params?: {
   page?: string;
   start?: string;
