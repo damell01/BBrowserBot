@@ -10,7 +10,6 @@ interface User {
   companyName?: string;
   pixelInstalled: boolean;
   trackingId: string;
-  customer_id?: string;
 }
 
 interface AuthContextType {
@@ -45,18 +44,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     try {
       const response = await api.login(email, password);
-      if (response.success) {
-        const userData: User = {
-          id: response.customer_id, // Use as temporary ID
-          name: response.name,
-          email: response.email,
-          role: response.role,
-          pixelInstalled: false, // Default value
-          trackingId: response.customer_id, // Use customer_id as tracking ID
-          customer_id: response.customer_id
-        };
-        setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
+      if (response.success && response.user) {
+        setUser(response.user);
+        localStorage.setItem('user', JSON.stringify(response.user));
         toast.success('Login successful!');
       } else {
         throw new Error('Invalid response format');

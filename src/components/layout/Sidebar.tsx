@@ -46,7 +46,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile, isOpen, toggleSidebar }) =>
     { path: '/admin/customers', icon: <Users size={20} />, label: 'Customers' },
     { path: '/admin/analytics', icon: <BarChart3 size={20} />, label: 'Analytics' },
     { path: '/admin/billing', icon: <CreditCard size={20} />, label: 'Billing' },
-    { path: '/admin/users', icon: <UserCog size={20} />, label: 'Manage Users' },
     { path: '/admin/settings', icon: <Settings size={20} />, label: 'Settings' },
   ];
 
