@@ -6,6 +6,8 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import CustomersPage from './pages/CustomersPage';
+import AnalyticsPage from './pages/AnalyticsPage';
 import CustomerDashboardPage from './pages/CustomerDashboardPage';
 import PixelSetupPage from './pages/PixelSetupPage';
 import LegalBestPracticesPage from './pages/LegalBestPracticesPage';
@@ -38,10 +40,28 @@ function App() {
             
             {/* Protected Admin Routes */}
             <Route 
-              path="/admin/*" 
+              path="/admin" 
               element={
                 <ProtectedRoute requiredRole="admin">
                   <AdminDashboardPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/admin/customers" 
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <CustomersPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/admin/analytics" 
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AnalyticsPage />
                 </ProtectedRoute>
               } 
             />
