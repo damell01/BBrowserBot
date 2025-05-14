@@ -23,3 +23,14 @@ export async function getWebsiteHits(params?: {
     throw new Error('Failed to fetch website hits');
   }
 }
+
+export async function exportCustomerLeads(customerId: string) {
+  try {
+    const response = await fetchApi(`${API_URL}/export-customer-leads.php?customer_id=${customerId}`, {
+      method: 'GET',
+    });
+    return handleResponse(response);
+  } catch (error) {
+    throw new Error('Failed to export customer leads');
+  }
+}
