@@ -36,3 +36,15 @@ export async function getCurrentUsage() {
     throw new Error('Failed to fetch current usage');
   }
 }
+
+export async function exportCustomerLeads(customerId: string) {
+  try {
+    const response = await fetchApi(`${API_URL}/customers/${customerId}/export`, {
+      method: 'POST',
+    });
+
+    return handleResponse(response);
+  } catch (error) {
+    throw new Error('Failed to export customer leads');
+  }
+}
