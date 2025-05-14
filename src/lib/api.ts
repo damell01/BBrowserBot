@@ -57,3 +57,14 @@ export async function verifyPixel(websiteUrl: string, customerId: string) {
     throw new Error('Failed to verify pixel installation');
   }
 }
+
+export async function redirectToCustomerPortal() {
+  try {
+    const response = await fetchApi(`${API_URL}/create-portal-session.php`, {
+      method: 'POST',
+    });
+    return handleResponse(response);
+  } catch (error) {
+    throw new Error('Failed to create customer portal session');
+  }
+}
