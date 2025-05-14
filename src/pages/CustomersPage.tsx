@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { getCustomers, exportCustomerLeads } from '../lib/api';
+import { getCustomers, exportCustomerLeads, getPixelScript } from '../lib/api';
 import { Search, Download, Users, Copy, CheckCircle, Code } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -14,7 +14,6 @@ interface Customer {
   lead_limit: string;
   last_active: string;
   monthly_value: string;
-  tracking_id: string;
 }
 
 const CustomersPage: React.FC = () => {
@@ -49,18 +48,22 @@ const CustomersPage: React.FC = () => {
     }
   };
 
-  const handleCopyScript = (trackingId: string, customerId: string) => {
-    const script = `<!-- BrowserBot Tracking Script -->
-<script src="${import.meta.env.VITE_API_URL}/pixel.js?cid=${trackingId}"></script>
-<!-- End BrowserBot Tracking Script -->`;
-
-    navigator.clipboard.writeText(script);
-    setCopiedId(customerId);
-    toast.success('Tracking script copied to clipboard!');
-
-    setTimeout(() => {
-      setCopiedId(null);
-    }, 3000);
+  const handleCopyScript = async (customerId: string) => {
+    try {
+      const response = await getPixelScript(customerId);
+      if (response.success && response.script) {
+        await navigator.clipboard.writeText(response.script);
+        setCopiedId(customerId);
+        toast.success('Tracking script copied to clipboard!');
+        
+        setTimeout(() => {
+          setCopiedId(null);
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('Failed to copy script:', error);
+      toast.error('Failed to copy tracking script');
+    }
   };
 
   const filteredCustomers = customers.filter(customer => 
@@ -131,10 +134,10 @@ const CustomersPage: React.FC = () => {
                   
                   <div className="flex items-center gap-4">
                     <button
-                      onClick={() => handleCopyScript(customer.tracking_id, customer.id)}
+                      onClick={() => handleCopyScript(customer.customer_id)}
                       className="flex items-center px-4 py-2 text-sm font-medium text-white bg-gray-700 rounded-md hover:bg-gray-600 transition-colors"
                     >
-                      {copiedId === customer.id ? (
+                      {copiedId === customer.customer_id ? (
                         <>
                           <CheckCircle className="w-4 h-4 mr-2 text-emerald-400" />
                           Copied!

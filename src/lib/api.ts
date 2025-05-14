@@ -207,15 +207,24 @@ export async function getStats() {
   }
 }
 
-export async function getPixelScript() {
+export async function getPixelScript(customerId: string) {
   try {
-    const response = await fetchApi(`${API_URL}/pixel.js`, {
+    const response = await fetchApi(`${API_URL}/get_pixel_script.php`, {
       method: 'POST',
+      body: JSON.stringify({ customer_id: customerId }),
     });
 
-    return handleResponse(response);
+    const data = await handleResponse(response);
+    
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to get pixel script');
+    }
+
+    return data;
   } catch (error) {
-    throw new Error('Failed to fetch pixel script');
+    const errorMessage = error instanceof Error ? error.message : 'Failed to get pixel script';
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
   }
 }
 
