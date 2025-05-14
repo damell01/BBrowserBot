@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { getCustomers, exportCustomerLeads, getPixelScript } from '../lib/api';
-import { Search, Download, Users, Copy, CheckCircle, Code } from 'lucide-react';
+import { getCustomers, exportCustomerLeads } from '../lib/api';
+import { Search, Download, Users } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 interface Customer {
@@ -20,8 +20,6 @@ const CustomersPage: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [copyingScript, setCopyingScript] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCustomers();
@@ -46,43 +44,6 @@ const CustomersPage: React.FC = () => {
       await exportCustomerLeads(customerId);
     } catch (error) {
       console.error('Export failed:', error);
-    }
-  };
-
-  const handleCopyScript = async (customerId: string) => {
-    if (!customerId) {
-      toast.error('Invalid customer ID');
-      return;
-    }
-
-    try {
-      setCopyingScript(customerId);
-      console.log('Fetching script for customer:', customerId);
-      
-      const response = await getPixelScript(customerId);
-      console.log('Script response:', response);
-
-      if (!response.success) {
-        throw new Error('Failed to get tracking script');
-      }
-      
-      if (!response.script) {
-        throw new Error('No tracking script available');
-      }
-
-      await navigator.clipboard.writeText(response.script);
-      setCopiedId(customerId);
-      toast.success('Tracking script copied to clipboard!');
-      
-      // Reset copied state after 3 seconds
-      setTimeout(() => {
-        setCopiedId(null);
-      }, 3000);
-    } catch (error) {
-      console.error('Copy script error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to copy script');
-    } finally {
-      setCopyingScript(null);
     }
   };
 
@@ -153,33 +114,6 @@ const CustomersPage: React.FC = () => {
                   </div>
                   
                   <div className="flex items-center gap-4">
-                    <button
-                      onClick={() => handleCopyScript(customer.customer_id)}
-                      disabled={copyingScript === customer.customer_id}
-                      className={`flex items-center px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${
-                        copyingScript === customer.customer_id
-                          ? 'bg-gray-600 cursor-not-allowed'
-                          : 'bg-gray-700 hover:bg-gray-600'
-                      }`}
-                    >
-                      {copiedId === customer.customer_id ? (
-                        <>
-                          <CheckCircle className="w-4 h-4 mr-2 text-emerald-400" />
-                          Copied!
-                        </>
-                      ) : copyingScript === customer.customer_id ? (
-                        <>
-                          <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          Copying...
-                        </>
-                      ) : (
-                        <>
-                          <Code className="w-4 h-4 mr-2" />
-                          Copy Script
-                        </>
-                      )}
-                    </button>
-
                     <span className={`px-3 py-1 text-sm rounded-full ${
                       parseInt(customer.lead_count) > 0
                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'

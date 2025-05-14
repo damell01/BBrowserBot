@@ -6,7 +6,6 @@ interface ApiResponse {
   success: boolean;
   error?: string;
   pixelInstalled?: boolean;
-  script?: string;
   [key: string]: any;
 }
 
@@ -26,7 +25,6 @@ async function handleResponse(response: Response): Promise<ApiResponse> {
     try {
       responseData = JSON.parse(text);
     } catch (e) {
-      console.error('Failed to parse response:', text);
       return {
         success: false,
         error: 'Server returned an invalid response. Please try again later.'
@@ -209,34 +207,15 @@ export async function getStats() {
   }
 }
 
-export async function getPixelScript(customerId: string) {
-  if (!customerId) {
-    throw new Error('Customer ID is required');
-  }
-
+export async function getPixelScript() {
   try {
-    console.log('Fetching pixel script for customer:', customerId);
-    const response = await fetchApi(`${API_URL}/get_pixel_script.php`, {
+    const response = await fetchApi(`${API_URL}/pixel.js`, {
       method: 'POST',
-      body: JSON.stringify({ customer_id: customerId }),
     });
 
-    const data = await handleResponse(response);
-    console.log('Pixel script response:', data);
-    
-    if (!data.success) {
-      throw new Error(data.error || 'Failed to get pixel script');
-    }
-
-    if (!data.script) {
-      throw new Error('No tracking script returned from server');
-    }
-
-    return data;
+    return handleResponse(response);
   } catch (error) {
-    console.error('getPixelScript error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Failed to get pixel script';
-    throw new Error(errorMessage);
+    throw new Error('Failed to fetch pixel script');
   }
 }
 
