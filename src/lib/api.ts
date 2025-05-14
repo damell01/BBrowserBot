@@ -23,3 +23,27 @@ export async function getWebsiteHits(params?: {
     throw new Error('Failed to fetch website hits');
   }
 }
+
+export async function exportCustomerLeads(customerId: string) {
+  try {
+    const response = await fetchApi(`${API_URL}/export-leads/${customerId}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to export customer leads');
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `customer-leads-${customerId}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  } catch (error) {
+    throw new Error('Failed to export customer leads');
+  }
+}
