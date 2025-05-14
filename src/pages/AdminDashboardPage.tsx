@@ -3,7 +3,6 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import StatsOverview from '../components/dashboard/StatsOverview';
 import LeadsTable from '../components/dashboard/LeadsTable';
 import { useLeads } from '../context/LeadsContext';
-import { useAuth } from '../context/AuthContext';
 import { getCustomers } from '../lib/api';
 import { 
   BarChart3, 
@@ -19,14 +18,11 @@ import {
 
 interface Customer {
   id: string;
+  customer_id: string;
   name: string;
   email: string;
-  company_name: string;
-  active_since: string;
-  status: string;
-  leads_count: number;
-  pixel_installed: boolean;
-  monthly_value: number;
+  lead_count: string;
+  lead_limit: string;
 }
 
 const AdminDashboardPage: React.FC = () => {
@@ -44,8 +40,8 @@ const AdminDashboardPage: React.FC = () => {
     try {
       setLoading(true);
       const response = await getCustomers();
-      if (response.success && response.customers) {
-        setCustomers(response.customers);
+      if (response.success && response.data) {
+        setCustomers(response.data);
       }
     } catch (error) {
       console.error('Failed to fetch customers:', error);
@@ -56,8 +52,8 @@ const AdminDashboardPage: React.FC = () => {
   
   // Calculate admin metrics from real data
   const totalCustomers = customers.length;
-  const activeCustomers = customers.filter(c => c.status === 'active').length;
-  const monthlyRecurringRevenue = customers.reduce((sum, customer) => sum + customer.monthly_value, 0);
+  const activeCustomers = customers.filter(c => parseInt(c.lead_count) > 0).length;
+  const totalLeads = customers.reduce((sum, customer) => sum + parseInt(customer.lead_count), 0);
   const leadsResolvedToday = leads.filter(lead => 
     new Date(lead.createdAt).toDateString() === new Date().toDateString()
   ).length;
@@ -65,8 +61,7 @@ const AdminDashboardPage: React.FC = () => {
   // Filter customers by search term
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.company_name.toLowerCase().includes(searchTerm.toLowerCase())
+    customer.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -80,10 +75,10 @@ const AdminDashboardPage: React.FC = () => {
               <div className="p-2 bg-emerald-500/20 rounded-lg">
                 <DollarSign className="h-6 w-6 text-emerald-400" />
               </div>
-              <h3 className="text-sm font-medium text-gray-400">Monthly Revenue</h3>
+              <h3 className="text-sm font-medium text-gray-400">Total Leads</h3>
             </div>
             <div className="text-2xl font-bold text-white">
-              ${monthlyRecurringRevenue.toLocaleString()}
+              {totalLeads.toLocaleString()}
             </div>
           </div>
           
@@ -166,18 +161,20 @@ const AdminDashboardPage: React.FC = () => {
                     
                     <div className="flex items-center space-x-4">
                       <div className="text-right">
-                        <p className="text-sm font-medium text-white">${customer.monthly_value.toLocaleString()}/mo</p>
-                        <p className="text-xs text-gray-400">{customer.leads_count.toLocaleString()} leads</p>
+                        <p className="text-sm font-medium text-white">
+                          {parseInt(customer.lead_count).toLocaleString()} / {parseInt(customer.lead_limit).toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-400">leads used</p>
                       </div>
                       
                       <div className="flex items-center space-x-2">
-                        {customer.pixel_installed ? (
+                        {parseInt(customer.lead_count) > 0 ? (
                           <span className="px-2 py-1 text-xs rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                             Active
                           </span>
                         ) : (
                           <span className="px-2 py-1 text-xs rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                            Setup Needed
+                            Inactive
                           </span>
                         )}
                         
