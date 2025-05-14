@@ -1,4 +1,8 @@
-// ... (keep existing imports) ...
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-hot-toast';
+import { grantAdminAccess, revokeAdminAccess } from '../lib/api';
+import DashboardLayout from '../components/layout/DashboardLayout';
 
 const AdminDashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -22,12 +26,8 @@ const AdminDashboardPage: React.FC = () => {
     }
   };
 
-  // ... (keep existing code) ...
-
   return (
     <DashboardLayout title="Admin Dashboard">
-      {/* ... (keep existing JSX) ... */}
-      
       {/* Add User Management Section */}
       <div className="mt-8 bg-gray-800 rounded-lg border border-gray-700 p-6">
         <h3 className="text-lg font-semibold text-white mb-4">User Management</h3>
