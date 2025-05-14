@@ -40,6 +40,7 @@ const AdminDashboardPage: React.FC = () => {
     try {
       setLoading(true);
       const response = await getCustomers();
+      console.log('Customer response:', response);
       if (response.success && response.data) {
         setCustomers(response.data);
       }
