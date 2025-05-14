@@ -19,6 +19,17 @@ async function fetchApi(url: string, options: RequestInit = {}) {
   return fetch(url, { ...defaultOptions, ...options });
 }
 
+export async function getCustomers() {
+  try {
+    const response = await fetchApi(`${API_URL}/get_customers.php`, {
+      method: 'GET',
+    });
+    return handleResponse(response);
+  } catch (error) {
+    throw new Error('Failed to fetch customers');
+  }
+}
+
 export async function exportCustomerLeads(customerId: string) {
   try {
     const response = await fetchApi(`${API_URL}/export_customer_leads.php`, {
