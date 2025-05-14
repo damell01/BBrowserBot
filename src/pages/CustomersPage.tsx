@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { getCustomers, exportCustomerLeads } from '../lib/api';
-import { Search, Download, Users } from 'lucide-react';
+import { Search, Download, Users, Copy, CheckCircle, Code } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 interface Customer {
@@ -14,12 +14,14 @@ interface Customer {
   lead_limit: string;
   last_active: string;
   monthly_value: string;
+  tracking_id: string;
 }
 
 const CustomersPage: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCustomers();
@@ -45,6 +47,20 @@ const CustomersPage: React.FC = () => {
     } catch (error) {
       console.error('Export failed:', error);
     }
+  };
+
+  const handleCopyScript = (trackingId: string, customerId: string) => {
+    const script = `<!-- BrowserBot Tracking Script -->
+<script src="${import.meta.env.VITE_API_URL}/pixel.js?cid=${trackingId}"></script>
+<!-- End BrowserBot Tracking Script -->`;
+
+    navigator.clipboard.writeText(script);
+    setCopiedId(customerId);
+    toast.success('Tracking script copied to clipboard!');
+
+    setTimeout(() => {
+      setCopiedId(null);
+    }, 3000);
   };
 
   const filteredCustomers = customers.filter(customer => 
@@ -114,6 +130,23 @@ const CustomersPage: React.FC = () => {
                   </div>
                   
                   <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => handleCopyScript(customer.tracking_id, customer.id)}
+                      className="flex items-center px-4 py-2 text-sm font-medium text-white bg-gray-700 rounded-md hover:bg-gray-600 transition-colors"
+                    >
+                      {copiedId === customer.id ? (
+                        <>
+                          <CheckCircle className="w-4 h-4 mr-2 text-emerald-400" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Code className="w-4 h-4 mr-2" />
+                          Copy Script
+                        </>
+                      )}
+                    </button>
+
                     <span className={`px-3 py-1 text-sm rounded-full ${
                       parseInt(customer.lead_count) > 0
                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
