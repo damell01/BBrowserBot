@@ -1,9 +1,4 @@
-import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { toast } from 'react-hot-toast';
-import { grantAdminAccess, revokeAdminAccess } from '../lib/api';
-import DashboardLayout from '../components/layout/DashboardLayout';
-import LeadsTable from '../components/dashboard/LeadsTable';
+// ... (keep existing imports) ...
 
 const AdminDashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -27,8 +22,12 @@ const AdminDashboardPage: React.FC = () => {
     }
   };
 
+  // ... (keep existing code) ...
+
   return (
     <DashboardLayout title="Admin Dashboard">
+      {/* ... (keep existing JSX) ... */}
+      
       {/* Add User Management Section */}
       <div className="mt-8 bg-gray-800 rounded-lg border border-gray-700 p-6">
         <h3 className="text-lg font-semibold text-white mb-4">User Management</h3>
@@ -51,18 +50,3 @@ const AdminDashboardPage: React.FC = () => {
                   onClick={() => customer.role === 'admin' 
                     ? handleRevokeAdmin(customer.id)
                     : handleGrantAdmin(customer.id)
-                }
-                className="text-sm font-medium px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-colors"
-                >
-                  {customer.role === 'admin' ? 'Revoke Admin' : 'Grant Admin'}
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </DashboardLayout>
-  );
-};
-
-export default AdminDashboardPage;
