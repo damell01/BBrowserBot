@@ -1,5 +1,36 @@
 // Add these functions to the existing api.ts file
 
+const API_URL = import.meta.env.VITE_API_URL;
+
+async function handleResponse(response: Response) {
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'API request failed');
+  }
+  return data;
+}
+
+async function fetchApi(url: string, options: RequestInit = {}) {
+  const defaultOptions = {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+  return fetch(url, { ...defaultOptions, ...options });
+}
+
+export async function exportCustomerLeads(customerId: string) {
+  try {
+    const response = await fetchApi(`${API_URL}/export_customer_leads.php`, {
+      method: 'POST',
+      body: JSON.stringify({ customer_id: customerId }),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    throw new Error('Failed to export customer leads');
+  }
+}
+
 export async function getUsers() {
   try {
     const response = await fetchApi(`${API_URL}/get_users.php`, {
