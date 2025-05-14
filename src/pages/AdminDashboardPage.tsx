@@ -5,27 +5,6 @@ import { grantAdminAccess, revokeAdminAccess } from '../lib/api';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import LeadsTable from '../components/dashboard/LeadsTable';
 
-const mockCustomers = [
-  {
-    id: '1',
-    name: 'Customer One',
-    email: 'customer1@example.com',
-    role: 'customer'
-  },
-  {
-    id: '2',
-    name: 'Admin User',
-    email: 'adminuser@example.com',
-    role: 'admin'
-  },
-  {
-    id: '3',
-    name: 'Customer Two',
-    email: 'customer2@example.com',
-    role: 'customer'
-  }
-];
-
 const AdminDashboardPage: React.FC = () => {
   const { user } = useAuth();
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
