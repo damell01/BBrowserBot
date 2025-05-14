@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Eye, TrendingUp, DollarSign } from 'lucide-react';
+import { Users, BarChart, TrendingUp, DollarSign } from 'lucide-react';
 import MetricsCard from './MetricsCard';
 
 interface StatsOverviewProps {
@@ -8,7 +8,6 @@ interface StatsOverviewProps {
     new: number;
     trafficResolved: number;
     pipelineValue: number;
-    websiteHits: number;
   };
 }
 
@@ -16,7 +15,7 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
       <MetricsCard 
-        title="Total Leads"
+        title="Total Leads Resolved"
         value={stats.total}
         icon={<Users className="h-6 w-6 text-blue-400" />}
         change={7.2}
@@ -25,9 +24,9 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats }) => {
       />
       
       <MetricsCard 
-        title="Website Hits"
-        value={stats.websiteHits}
-        icon={<Eye className="h-6 w-6 text-indigo-400" />}
+        title="New Leads"
+        value={stats.new}
+        icon={<BarChart className="h-6 w-6 text-indigo-400" />}
         change={12.5}
         changeLabel="from last month"
         iconBgColor="bg-indigo-500/20"
@@ -44,7 +43,7 @@ const StatsOverview: React.FC<StatsOverviewProps> = ({ stats }) => {
       
       <MetricsCard 
         title="Pipeline Value"
-        value={`$${stats.pipelineValue.toLocaleString()}`}
+        value={`$${(stats.total * 1000).toLocaleString()}`}
         icon={<DollarSign className="h-6 w-6 text-amber-400" />}
         change={8.4}
         changeLabel="from last month"
