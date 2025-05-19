@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { Search, RefreshCw } from 'lucide-react';
+import { Search, RefreshCw, Users } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 interface PixelHit {
   id: string;
-  url: string;
+  page: string;
   ip: string;
   user_agent: string;
   timestamp: string;
-  enriched: number;
-  [key: string]: any; // For any additional fields
+  customer_id: string;
+}
+
+interface Customer {
+  id: string;
+  name: string;
+  customer_id: string;
 }
 
 const WebsiteHitsPage: React.FC = () => {
@@ -18,11 +24,38 @@ const WebsiteHitsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<string>('');
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const { user } = useAuth();
+
+  const fetchCustomers = async () => {
+    if (user?.role !== 'admin') return;
+    
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/get_customers.php`, {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setCustomers(data.user?.data || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch customers:', error);
+    }
+  };
 
   const fetchHits = async () => {
     try {
       setRefreshing(true);
-      const response = await fetch('https://dbellcreations.com/browserbot/api/enrich_queue_test.php');
+      const url = new URL('https://dbellcreations.com/browserbot/api/enrich_queue_test.php');
+      
+      if (user?.role === 'customer' && user?.customer_id) {
+        url.searchParams.append('customer_id', user.customer_id);
+      } else if (user?.role === 'admin' && selectedCustomer) {
+        url.searchParams.append('customer_id', selectedCustomer);
+      }
+      
+      const response = await fetch(url.toString());
       const data = await response.json();
       
       if (data.success) {
@@ -40,8 +73,18 @@ const WebsiteHitsPage: React.FC = () => {
   };
 
   useEffect(() => {
+    if (user?.role === 'admin') {
+      fetchCustomers();
+    }
+  }, [user]);
+
+  useEffect(() => {
     fetchHits();
-  }, []);
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchHits, 30000);
+    return () => clearInterval(interval);
+  }, [selectedCustomer, user]);
 
   const filteredHits = hits.filter(hit => 
     Object.values(hit).some(value => 
@@ -54,10 +97,14 @@ const WebsiteHitsPage: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-8">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-xl font-bold text-white mb-2">Pixel Queue</h2>
-              <p className="text-gray-400">Monitor incoming website hits and visitor data</p>
+              <p className="text-gray-400">
+                {user?.role === 'admin' 
+                  ? 'Monitor all incoming website hits and visitor data'
+                  : 'Monitor your website hits and visitor data'}
+              </p>
             </div>
             <button
               onClick={fetchHits}
@@ -69,15 +116,35 @@ const WebsiteHitsPage: React.FC = () => {
             </button>
           </div>
 
-          <div className="mt-4 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <input
-              type="text"
-              placeholder="Search hits..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-gray-900 text-gray-200 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500"
-            />
+          <div className="space-y-4">
+            {user?.role === 'admin' && (
+              <div className="relative">
+                <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <select
+                  value={selectedCustomer}
+                  onChange={(e) => setSelectedCustomer(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-gray-900 text-gray-200 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500"
+                >
+                  <option value="">All Customers</option>
+                  {customers.map((customer) => (
+                    <option key={customer.customer_id} value={customer.customer_id}>
+                      {customer.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <input
+                type="text"
+                placeholder="Search hits..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-gray-900 text-gray-200 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500"
+              />
+            </div>
           </div>
         </div>
 
@@ -93,11 +160,13 @@ const WebsiteHitsPage: React.FC = () => {
               <table className="w-full">
                 <thead className="bg-gray-900">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">URL</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Page</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">IP</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">User Agent</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Timestamp</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Status</th>
+                    {user?.role === 'admin' && !selectedCustomer && (
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Customer</th>
+                    )}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-700">
@@ -105,7 +174,7 @@ const WebsiteHitsPage: React.FC = () => {
                     filteredHits.map((hit) => (
                       <tr key={hit.id} className="hover:bg-gray-750">
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                          {hit.url}
+                          {hit.page}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                           {hit.ip}
@@ -116,20 +185,19 @@ const WebsiteHitsPage: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                           {new Date(hit.timestamp).toLocaleString()}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            hit.enriched
-                              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                              : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                          }`}>
-                            {hit.enriched ? 'Enriched' : 'Pending'}
-                          </span>
-                        </td>
+                        {user?.role === 'admin' && !selectedCustomer && (
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                            {customers.find(c => c.customer_id === hit.customer_id)?.name || hit.customer_id}
+                          </td>
+                        )}
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={5} className="px-6 py-4 text-center text-gray-400">
+                      <td 
+                        colSpan={user?.role === 'admin' && !selectedCustomer ? 5 : 4} 
+                        className="px-6 py-4 text-center text-gray-400"
+                      >
                         No hits found
                       </td>
                     </tr>
