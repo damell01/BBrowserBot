@@ -15,8 +15,11 @@ interface PixelHit {
 
 interface Customer {
   id: string;
-  name: string;
   customer_id: string;
+  name: string;
+  email: string;
+  lead_count: string;
+  lead_limit: string;
 }
 
 const WebsiteHitsPage: React.FC = () => {
@@ -37,10 +40,11 @@ const WebsiteHitsPage: React.FC = () => {
       });
       const data = await response.json();
       if (data.success) {
-        setCustomers(data.user?.data || []);
+        setCustomers(data.data || []);
       }
     } catch (error) {
       console.error('Failed to fetch customers:', error);
+      toast.error('Failed to fetch customers');
     }
   };
 
@@ -99,7 +103,7 @@ const WebsiteHitsPage: React.FC = () => {
         <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-xl font-bold text-white mb-2">Pixel Queue</h2>
+              <h2 className="text-xl font-bold text-white mb-2">Website Hits</h2>
               <p className="text-gray-400">
                 {user?.role === 'admin' 
                   ? 'Monitor all incoming website hits and visitor data'
@@ -128,7 +132,7 @@ const WebsiteHitsPage: React.FC = () => {
                   <option value="">All Customers</option>
                   {customers.map((customer) => (
                     <option key={customer.customer_id} value={customer.customer_id}>
-                      {customer.name}
+                      {customer.name} ({customer.email})
                     </option>
                   ))}
                 </select>
