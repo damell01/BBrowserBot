@@ -55,6 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile, isOpen, toggleSidebar }) =>
   const customerLinks = [
     { path: '/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
     { path: '/pixel-setup', icon: <PlusCircle size={20} />, label: 'Bot Setup' },
+    { path: '/hits', icon: <Activity size={20} />, label: 'Website Hits' },
     { path: '/legal-best-practices', icon: <Scale size={20} />, label: 'Legal Best Practices' },
     { path: '/roi-calculator', icon: <Calculator size={20} />, label: 'ROI Calculator' },
     { path: '/training', icon: <GraduationCap size={20} />, label: 'Training' },

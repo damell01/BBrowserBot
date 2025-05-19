@@ -161,6 +161,15 @@ function App() {
             />
 
             <Route 
+              path="/hits" 
+              element={
+                <ProtectedRoute requiredRole="customer">
+                  <WebsiteHitsPage />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
               path="/roi-calculator" 
               element={
                 <ProtectedRoute requiredRole="customer">
