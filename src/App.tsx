@@ -18,6 +18,7 @@ import TrainingPage from './pages/TrainingPage';
 import SupportPage from './pages/SupportPage';
 import BillingPage from './pages/BillingPage';
 import RoiCalculatorPage from './pages/RoiCalculatorPage';
+import WebsiteHitsPage from './pages/WebsiteHitsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
@@ -82,6 +83,15 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="admin">
                   <UsersManagementPage />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
+              path="/admin/hits" 
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <WebsiteHitsPage />
                 </ProtectedRoute>
               } 
             />

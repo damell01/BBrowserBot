@@ -14,7 +14,8 @@ import {
   GraduationCap,
   CreditCard,
   Calculator,
-  Scale
+  Scale,
+  Activity
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -47,6 +48,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile, isOpen, toggleSidebar }) =>
     { path: '/admin/analytics', icon: <BarChart3 size={20} />, label: 'Analytics' },
     { path: '/admin/billing', icon: <CreditCard size={20} />, label: 'Billing' },
     { path: '/admin/users', icon: <UserCog size={20} />, label: 'Users' },
+    { path: '/admin/hits', icon: <Activity size={20} />, label: 'Website Hits' },
     { path: '/admin/settings', icon: <Settings size={20} />, label: 'Settings' },
   ];
 
