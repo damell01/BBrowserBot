@@ -78,25 +78,18 @@ Deno.serve(async (req) => {
       console.log('Parsed HTML with cheerio');
 
       // Look for the tracking script
-      const scripts = $('script').map((_, el) => $(el).html()).get();
-      console.log(`Found ${scripts.length} script tags`);
-      
-      // Check for BrowserBotTracker initialization
-      const hasTrackerInit = scripts.some(script => {
-        if (!script) return false;
-        const hasTracker = script.includes('BrowserBotTracker');
-        const hasTrackingId = script.includes(`BrowserBotTrackingID`);
-        const hasCorrectId = script.includes(trackingId);
-        console.log('Script check:', { hasTracker, hasTrackingId, hasCorrectId });
-        return hasTracker && hasTrackingId && hasCorrectId;
+      const trackerScript = $(`script[src*="${trackingId}"]`).length > 0;
+      console.log('Tracker script found:', trackerScript);
+
+      // Look for the initialization code
+      const initScript = $('script').toArray().some(script => {
+        const content = $(script).html() || '';
+        return content.includes(`browserbot.init('${trackingId}')`);
       });
+      console.log('Init script found:', initScript);
 
-      // Check for tracker.js script
-      const hasTrackerScript = $('script[src*="tracker.js"]').length > 0;
-      console.log('Tracker script found:', hasTrackerScript);
-
-      const pixelFound = hasTrackerScript && hasTrackerInit;
-      console.log('Final verification result:', { pixelFound, hasTrackerScript, hasTrackerInit });
+      const pixelFound = trackerScript && initScript;
+      console.log('Final verification result:', { pixelFound, trackerScript, initScript });
 
       return new Response(
         JSON.stringify({ 
@@ -104,7 +97,7 @@ Deno.serve(async (req) => {
           pixelFound,
           message: pixelFound 
             ? 'Tracking pixel detected successfully' 
-            : 'Tracking pixel not found or incorrectly installed. Please ensure the script is added to the <head> section of your website.' 
+            : 'Tracking pixel not found or incorrectly installed. Please check both the script tag and initialization code.' 
         }),
         { headers: corsHeaders }
       );
