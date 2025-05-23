@@ -49,15 +49,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem('user', JSON.stringify(response.user));
         toast.success('Login successful!');
       } else {
-        throw new Error('Invalid response format');
+        // Handle the error response from the API
+        throw new Error(response.error || 'Invalid email or password');
       }
     } catch (error) {
       console.error('Login failed:', error);
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error('Login failed. Please try again.');
-      }
+      // Show the specific error message from the API
+      const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.';
+      toast.error(errorMessage);
       throw error;
     }
   };
@@ -69,7 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         toast.success('Registration successful!');
         await login(email, password);
       } else {
-        throw new Error('Registration failed');
+        throw new Error(response.error || 'Registration failed');
       }
     } catch (error) {
       console.error('Registration failed:', error);

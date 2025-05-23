@@ -25,6 +25,13 @@ async function handleResponse(response: Response): Promise<ApiResponse> {
     try {
       responseData = JSON.parse(text);
     } catch (e) {
+      // If the response isn't JSON but we got a 401, it's likely an auth error
+      if (response.status === 401) {
+        return {
+          success: false,
+          error: 'Invalid email or password'
+        };
+      }
       return {
         success: false,
         error: 'Server returned an invalid response. Please try again later.'
@@ -34,6 +41,14 @@ async function handleResponse(response: Response): Promise<ApiResponse> {
     return {
       success: false,
       error: 'Failed to read server response. Please try again later.'
+    };
+  }
+
+  // Handle 401 responses with proper error messages
+  if (response.status === 401) {
+    return {
+      success: false,
+      error: responseData.error || 'Invalid email or password'
     };
   }
 
@@ -70,7 +85,8 @@ const fetchApi = async (url: string, options: RequestInit = {}) => {
       }
     });
 
-    if (!response.ok) {
+    // Don't throw for 401 status, let handleResponse handle it
+    if (!response.ok && response.status !== 401) {
       const errorData = await response.text();
       let parsedError;
       try {
