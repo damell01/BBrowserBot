@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { Search, RefreshCw, Users } from 'lucide-react';
+import { Search, RefreshCw, Users, Globe } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
-interface PixelHit {
-  id: string;
+interface PageHit {
   page: string;
-  ip: string;
-  user_agent: string;
-  timestamp: string;
-  customer_id: string;
+  hits: number;
 }
 
 interface Customer {
@@ -23,7 +19,7 @@ interface Customer {
 }
 
 const WebsiteHitsPage: React.FC = () => {
-  const [hits, setHits] = useState<PixelHit[]>([]);
+  const [hits, setHits] = useState<PageHit[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [refreshing, setRefreshing] = useState(false);
@@ -51,21 +47,23 @@ const WebsiteHitsPage: React.FC = () => {
   const fetchHits = async () => {
     try {
       setRefreshing(true);
-      const url = new URL('https://dbellcreations.com/browserbot/api/enrich_queue_test.php');
+      const url = new URL(`${import.meta.env.VITE_API_URL}/get_traffic.php`);
       
-      if (user?.role === 'customer' && user?.customer_id) {
-        url.searchParams.append('customer_id', user.customer_id);
-      } else if (user?.role === 'admin' && selectedCustomer) {
+      // Add any query parameters if needed
+      if (selectedCustomer) {
         url.searchParams.append('customer_id', selectedCustomer);
       }
       
-      const response = await fetch(url.toString());
+      const response = await fetch(url.toString(), {
+        credentials: 'include'
+      });
+      
       const data = await response.json();
       
       if (data.success) {
-        setHits(data.data);
+        setHits(data.pages || []);
       } else {
-        throw new Error('Failed to fetch hits');
+        throw new Error(data.message || 'Failed to fetch hits');
       }
     } catch (error) {
       toast.error('Failed to fetch website hits');
@@ -91,10 +89,10 @@ const WebsiteHitsPage: React.FC = () => {
   }, [selectedCustomer, user]);
 
   const filteredHits = hits.filter(hit => 
-    Object.values(hit).some(value => 
-      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    hit.page.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const totalHits = filteredHits.reduce((sum, hit) => sum + hit.hits, 0);
 
   return (
     <DashboardLayout title="Website Hits">
@@ -143,11 +141,24 @@ const WebsiteHitsPage: React.FC = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
               <input
                 type="text"
-                placeholder="Search hits..."
+                placeholder="Search pages..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 bg-gray-900 text-gray-200 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Total Hits Card */}
+        <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-8">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-500/20 rounded-lg">
+              <Globe className="h-6 w-6 text-blue-400" />
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-400">Total Page Views</h3>
+              <p className="text-2xl font-bold text-white">{totalHits.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -164,44 +175,25 @@ const WebsiteHitsPage: React.FC = () => {
               <table className="w-full">
                 <thead className="bg-gray-900">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Page</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">IP</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">User Agent</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Timestamp</th>
-                    {user?.role === 'admin' && !selectedCustomer && (
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Customer</th>
-                    )}
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Page URL</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase">Hits</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-700">
                   {filteredHits.length > 0 ? (
-                    filteredHits.map((hit) => (
-                      <tr key={hit.id} className="hover:bg-gray-750">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                    filteredHits.map((hit, index) => (
+                      <tr key={index} className="hover:bg-gray-750">
+                        <td className="px-6 py-4 text-sm text-white">
                           {hit.page}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {hit.ip}
+                        <td className="px-6 py-4 text-right text-sm text-gray-300">
+                          {hit.hits.toLocaleString()}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {hit.user_agent}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {new Date(hit.timestamp).toLocaleString()}
-                        </td>
-                        {user?.role === 'admin' && !selectedCustomer && (
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                            {customers.find(c => c.customer_id === hit.customer_id)?.name || hit.customer_id}
-                          </td>
-                        )}
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td 
-                        colSpan={user?.role === 'admin' && !selectedCustomer ? 5 : 4} 
-                        className="px-6 py-4 text-center text-gray-400"
-                      >
+                      <td colSpan={2} className="px-6 py-4 text-center text-gray-400">
                         No hits found
                       </td>
                     </tr>
