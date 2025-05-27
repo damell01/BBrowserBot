@@ -15,7 +15,8 @@ import {
   CreditCard,
   Calculator,
   Scale,
-  Activity
+  Activity,
+  MessageSquare
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -45,6 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile, isOpen, toggleSidebar }) =>
   const adminLinks = [
     { path: '/admin', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
     { path: '/admin/customers', icon: <Users size={20} />, label: 'Customers' },
+    { path: '/admin/leads', icon: <MessageSquare size={20} />, label: 'Leads' },
     { path: '/admin/analytics', icon: <BarChart3 size={20} />, label: 'Analytics' },
     { path: '/admin/billing', icon: <CreditCard size={20} />, label: 'Billing' },
     { path: '/admin/users', icon: <UserCog size={20} />, label: 'Users' },

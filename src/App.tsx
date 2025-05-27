@@ -19,6 +19,7 @@ import SupportPage from './pages/SupportPage';
 import BillingPage from './pages/BillingPage';
 import RoiCalculatorPage from './pages/RoiCalculatorPage';
 import WebsiteHitsPage from './pages/WebsiteHitsPage';
+import AdminLeadsPage from './pages/AdminLeadsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
@@ -56,6 +57,15 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="admin">
                   <CustomersPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/admin/leads" 
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminLeadsPage />
                 </ProtectedRoute>
               } 
             />
@@ -186,5 +196,3 @@ function App() {
     </AuthProvider>
   );
 }
-
-export default App;
