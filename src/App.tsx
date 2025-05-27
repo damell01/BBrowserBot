@@ -21,8 +21,24 @@ import RoiCalculatorPage from './pages/RoiCalculatorPage';
 import WebsiteHitsPage from './pages/WebsiteHitsPage';
 import AdminLeadsPage from './pages/AdminLeadsPage';
 import NotFoundPage from './pages/NotFoundPage';
+import { useEffect } from 'react';
 
 function App() {
+  useEffect(() => {
+    // Store the current path in sessionStorage whenever it changes
+    const handleRouteChange = () => {
+      sessionStorage.setItem('lastPath', window.location.pathname);
+    };
+
+    // Listen for route changes
+    window.addEventListener('popstate', handleRouteChange);
+    handleRouteChange(); // Store initial route
+
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, []);
+
   return (
     <AuthProvider>
       <LeadsProvider>
@@ -188,7 +204,7 @@ function App() {
               } 
             />
             
-            <Route path="/" element={<Navigate to="/login\" replace />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Router>

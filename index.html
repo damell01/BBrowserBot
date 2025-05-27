@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Browser Bot - Website Visitor Tracking</title>
+    <script>
+      // Restore the last known route on page load
+      (function() {
+        const lastPath = sessionStorage.getItem('lastPath');
+        if (lastPath && lastPath !== window.location.pathname) {
+          window.history.replaceState(null, '', lastPath);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
