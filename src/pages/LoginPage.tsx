@@ -75,8 +75,8 @@ const LoginPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <p className="text-gray-400">Customer Login:</p>
-                <p className="text-white">Email: test1@example.com</p>
-                <p className="text-white">Password: test123</p>
+                <p className="text-white">Email: test@test.com</p>
+                <p className="text-white">Password: test</p>
               </div>
               <div>
                 <p className="text-gray-400">Admin Login:</p>
