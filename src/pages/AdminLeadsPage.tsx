@@ -46,7 +46,9 @@ const AdminLeadsPage: React.FC = () => {
       lead.company.toLowerCase().includes(searchTerm.toLowerCase());
     
     if (selectedCustomer) {
-      return matchesSearch && lead.userId === selectedCustomer;
+      // Find the selected customer's ID
+      const customer = customers.find(c => c.customer_id === selectedCustomer);
+      return matchesSearch && lead.userId === customer?.id;
     }
     
     return matchesSearch;
