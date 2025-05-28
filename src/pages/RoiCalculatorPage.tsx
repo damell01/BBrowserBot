@@ -5,6 +5,7 @@ import { Calculator, DollarSign, Percent, Users, TrendingUp } from 'lucide-react
 const RoiCalculatorPage: React.FC = () => {
   const [pageViews, setPageViews] = useState(10000);
   const [resolveRate, setResolveRate] = useState(20);
+  const [reoptinRate, setReoptinRate] = useState(15);
   const [conversionRate, setConversionRate] = useState(10);
   const [ticketPrice, setTicketPrice] = useState(1000);
   const [monthlyRevenue, setMonthlyRevenue] = useState(0);
@@ -12,11 +13,12 @@ const RoiCalculatorPage: React.FC = () => {
 
   useEffect(() => {
     const resolvedLeads = (pageViews * (resolveRate / 100));
-    const conversions = resolvedLeads * (conversionRate / 100);
+    const reoptedInLeads = resolvedLeads * (reoptinRate / 100);
+    const conversions = reoptedInLeads * (conversionRate / 100);
     const monthly = conversions * ticketPrice;
     setMonthlyRevenue(monthly);
     setYearlyRevenue(monthly * 12);
-  }, [pageViews, resolveRate, conversionRate, ticketPrice]);
+  }, [pageViews, resolveRate, reoptinRate, conversionRate, ticketPrice]);
 
   return (
     <DashboardLayout title="ROI Calculator">
@@ -71,6 +73,29 @@ const RoiCalculatorPage: React.FC = () => {
                   >
                     <div className="text-lg font-semibold">{rate}%</div>
                     <div className="text-sm">Resolution</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Reopt-in Rate Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Re-opt-in Rate
+              </label>
+              <div className="grid grid-cols-3 gap-4">
+                {[10, 15, 20].map((rate) => (
+                  <button
+                    key={rate}
+                    onClick={() => setReoptinRate(rate)}
+                    className={`p-4 rounded-lg border ${
+                      reoptinRate === rate
+                        ? 'bg-purple-500/20 border-purple-500/50 text-purple-400'
+                        : 'bg-gray-900 border-gray-700 text-gray-400 hover:border-gray-600'
+                    }`}
+                  >
+                    <div className="text-lg font-semibold">{rate}%</div>
+                    <div className="text-sm">Re-opt-in</div>
                   </button>
                 ))}
               </div>
