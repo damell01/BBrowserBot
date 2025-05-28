@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { getCustomers, exportCustomerLeads } from '../lib/api';
-import { Search, Download, Users } from 'lucide-react';
+import { Search, Download, Users, CheckCircle2, XCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 interface Customer {
@@ -14,6 +14,7 @@ interface Customer {
   lead_limit: string;
   last_active: string;
   monthly_value: string;
+  status: 'active' | 'inactive';
 }
 
 const CustomersPage: React.FC = () => {
@@ -114,13 +115,23 @@ const CustomersPage: React.FC = () => {
                   </div>
                   
                   <div className="flex items-center gap-4">
-                    <span className={`px-3 py-1 text-sm rounded-full ${
-                      parseInt(customer.lead_count) > 0
+                    <div className={`flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                      customer.status === 'active'
                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                        : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                        : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
                     }`}>
-                      {parseInt(customer.lead_count) > 0 ? 'Active' : 'Inactive'}
-                    </span>
+                      {customer.status === 'active' ? (
+                        <>
+                          <CheckCircle2 className="w-4 h-4 mr-1.5" />
+                          Active
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="w-4 h-4 mr-1.5" />
+                          Inactive
+                        </>
+                      )}
+                    </div>
 
                     <button
                       onClick={() => handleExportLeads(customer.customer_id)}
