@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bot, CheckCircle2, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
