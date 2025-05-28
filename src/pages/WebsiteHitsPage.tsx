@@ -48,7 +48,7 @@ const WebsiteHitsPage: React.FC = () => {
   const fetchHits = async () => {
     try {
       setRefreshing(true);
-      const url = new URL(`${import.meta.env.VITE_API_URL}/get_traffic_data.php`);
+      const url = new URL(`https://dbellcreations.com/browserbot/api/enrich_queue_test.php`);
       
       if (selectedCustomer) {
         url.searchParams.append('customer_id', selectedCustomer);
