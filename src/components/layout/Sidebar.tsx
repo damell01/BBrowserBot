@@ -11,7 +11,6 @@ import {
   PlusCircle,
   Bot,
   HelpCircle,
-  GraduationCap,
   CreditCard,
   Calculator,
   Scale,
@@ -50,8 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile, isOpen, toggleSidebar }) =>
     { path: '/admin/analytics', icon: <BarChart3 size={20} />, label: 'Analytics' },
     { path: '/admin/billing', icon: <CreditCard size={20} />, label: 'Billing' },
     { path: '/admin/users', icon: <UserCog size={20} />, label: 'Users' },
-    { path: '/admin/hits', icon: <Activity size={20} />, label: 'Website Hits' },
-    { path: '/admin/settings', icon: <Settings size={20} />, label: 'Settings' },
+    { path: '/admin/hits', icon: <Activity size={20} />, label: 'Website Hits' }
   ];
 
   const customerLinks = [
@@ -60,10 +58,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile, isOpen, toggleSidebar }) =>
     { path: '/hits', icon: <Activity size={20} />, label: 'Website Hits' },
     { path: '/legal-best-practices', icon: <Scale size={20} />, label: 'Legal Best Practices' },
     { path: '/roi-calculator', icon: <Calculator size={20} />, label: 'ROI Calculator' },
-    { path: '/training', icon: <GraduationCap size={20} />, label: 'Training' },
     { path: '/support', icon: <HelpCircle size={20} />, label: 'Support' },
-    { path: '/billing', icon: <CreditCard size={20} />, label: 'Billing & Usage' },
-    { path: '/settings', icon: <Settings size={20} />, label: 'Settings' },
+    { path: '/billing', icon: <CreditCard size={20} />, label: 'Billing & Usage' }
   ];
 
   const links = user?.role === 'admin' ? adminLinks : customerLinks;

@@ -14,7 +14,6 @@ import CustomerDashboardPage from './pages/CustomerDashboardPage';
 import PixelSetupPage from './pages/PixelSetupPage';
 import LegalBestPracticesPage from './pages/LegalBestPracticesPage';
 import CrmIntegrationPage from './pages/CrmIntegrationPage';
-import TrainingPage from './pages/TrainingPage';
 import SupportPage from './pages/SupportPage';
 import BillingPage from './pages/BillingPage';
 import RoiCalculatorPage from './pages/RoiCalculatorPage';
@@ -160,15 +159,6 @@ function App() {
             />
 
             <Route 
-              path="/training" 
-              element={
-                <ProtectedRoute requiredRole="customer">
-                  <TrainingPage />
-                </ProtectedRoute>
-              } 
-            />
-
-            <Route 
               path="/support" 
               element={
                 <ProtectedRoute requiredRole="customer">
@@ -204,7 +194,7 @@ function App() {
               } 
             />
             
-            <Route path="/" element={<Navigate to="/login\" replace />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Router>
