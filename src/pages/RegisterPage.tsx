@@ -19,7 +19,7 @@ const RegisterPage: React.FC = () => {
     
     try {
       await register(email, password, name, companyName);
-      navigate('/paywall');
+      navigate('/dashboard');
     } catch (error) {
       toast.error('Registration failed. Please try again.');
     } finally {
