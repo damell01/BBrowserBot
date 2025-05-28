@@ -10,6 +10,7 @@ interface User {
   companyName?: string;
   pixelInstalled: boolean;
   trackingId: string;
+  status: 'active' | 'inactive';
 }
 
 interface AuthContextType {
@@ -45,16 +46,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await api.login(email, password);
       if (response.success && response.user) {
-        setUser(response.user);
-        localStorage.setItem('user', JSON.stringify(response.user));
+        const userData = {
+          ...response.user,
+          status: response.status || 'inactive'
+        };
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
         toast.success('Login successful!');
       } else {
-        // Handle the error response from the API
         throw new Error(response.error || 'Invalid email or password');
       }
     } catch (error) {
       console.error('Login failed:', error);
-      // Show the specific error message from the API
       const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.';
       toast.error(errorMessage);
       throw error;
@@ -65,8 +68,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await api.register(email, password, name, companyName);
       if (response.success) {
+        const userData = {
+          ...response,
+          status: response.status || 'inactive'
+        };
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
         toast.success('Registration successful!');
-        await login(email, password);
       } else {
         throw new Error(response.error || 'Registration failed');
       }

@@ -16,6 +16,7 @@ import LegalBestPracticesPage from './pages/LegalBestPracticesPage';
 import CrmIntegrationPage from './pages/CrmIntegrationPage';
 import SupportPage from './pages/SupportPage';
 import BillingPage from './pages/BillingPage';
+import PaywallPage from './pages/PaywallPage';
 import RoiCalculatorPage from './pages/RoiCalculatorPage';
 import WebsiteHitsPage from './pages/WebsiteHitsPage';
 import AdminLeadsPage from './pages/AdminLeadsPage';
@@ -24,14 +25,12 @@ import { useEffect } from 'react';
 
 function App() {
   useEffect(() => {
-    // Store the current path in sessionStorage whenever it changes
     const handleRouteChange = () => {
       sessionStorage.setItem('lastPath', window.location.pathname);
     };
 
-    // Listen for route changes
     window.addEventListener('popstate', handleRouteChange);
-    handleRouteChange(); // Store initial route
+    handleRouteChange();
 
     return () => {
       window.removeEventListener('popstate', handleRouteChange);
@@ -56,6 +55,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/paywall" element={<PaywallPage />} />
             
             {/* Protected Admin Routes */}
             <Route 
@@ -194,7 +194,7 @@ function App() {
               } 
             />
             
-            <Route path="/" element={<Navigate to="/login\" replace />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Router>
