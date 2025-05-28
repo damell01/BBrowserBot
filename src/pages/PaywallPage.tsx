@@ -10,6 +10,12 @@ const PaywallPage: React.FC = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
+  // Redirect active users to dashboard
+  if (user?.status === 'active') {
+    navigate(user.role === 'admin' ? '/admin' : '/dashboard');
+    return null;
+  }
+
   const plans = [
     {
       id: 'price_starter',
