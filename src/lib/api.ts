@@ -25,7 +25,6 @@ async function handleResponse(response: Response): Promise<ApiResponse> {
     try {
       responseData = JSON.parse(text);
     } catch (e) {
-      // If the response isn't JSON but we got a 401, it's likely an auth error
       if (response.status === 401) {
         return {
           success: false,
@@ -44,7 +43,6 @@ async function handleResponse(response: Response): Promise<ApiResponse> {
     };
   }
 
-  // Handle 401 responses with proper error messages
   if (response.status === 401) {
     return {
       success: false,
@@ -85,7 +83,6 @@ const fetchApi = async (url: string, options: RequestInit = {}) => {
       }
     });
 
-    // Don't throw for 401 status, let handleResponse handle it
     if (!response.ok && response.status !== 401) {
       const errorData = await response.text();
       let parsedError;
@@ -247,7 +244,6 @@ export async function verifyPixel(url: string, customer_id: string) {
 
     const data = await handleResponse(response);
     
-    // Handle the specific response format
     if (data.success && data.pixel_installed === 'already_installed') {
       return { success: true, pixelInstalled: true };
     }
