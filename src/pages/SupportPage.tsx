@@ -2,13 +2,9 @@ import React, { useState } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { 
   Search,
-  ChevronDown,
   MessageSquare,
   Mail,
   Phone,
-  Clock,
-  AlertCircle,
-  CheckCircle2,
   Plus,
   Minus
 } from 'lucide-react';
@@ -23,8 +19,6 @@ interface FAQ {
 const SupportPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
-  const [ticketSubject, setTicketSubject] = useState('');
-  const [ticketDescription, setTicketDescription] = useState('');
 
   const faqs: FAQ[] = [
     {
@@ -64,12 +58,6 @@ const SupportPage: React.FC = () => {
     faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSubmitTicket = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle ticket submission
-    console.log('Ticket submitted:', { ticketSubject, ticketDescription });
-  };
-
   return (
     <DashboardLayout title="Support">
       <div className="max-w-5xl mx-auto">
@@ -99,7 +87,7 @@ const SupportPage: React.FC = () => {
         </div>
 
         {/* FAQ Section */}
-        <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-8">
+        <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
           <h3 className="text-lg font-semibold text-white mb-4">Frequently Asked Questions</h3>
           
           <div className="relative mb-6">
@@ -139,48 +127,6 @@ const SupportPage: React.FC = () => {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Support Ticket Form */}
-        <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Submit a Support Ticket</h3>
-          
-          <form onSubmit={handleSubmitTicket} className="space-y-4">
-            <div>
-              <label htmlFor="subject" className="block text-sm font-medium text-gray-300 mb-1">
-                Subject
-              </label>
-              <input
-                type="text"
-                id="subject"
-                value={ticketSubject}
-                onChange={(e) => setTicketSubject(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 placeholder-gray-500 focus:outline-none focus:border-blue-500"
-                placeholder="Brief description of your issue"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-1">
-                Description
-              </label>
-              <textarea
-                id="description"
-                value={ticketDescription}
-                onChange={(e) => setTicketDescription(e.target.value)}
-                rows={4}
-                className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 placeholder-gray-500 focus:outline-none focus:border-blue-500"
-                placeholder="Detailed description of your issue"
-              />
-            </div>
-            
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
-            >
-              Submit Ticket
-            </button>
-          </form>
         </div>
       </div>
     </DashboardLayout>
