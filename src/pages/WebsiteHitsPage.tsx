@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 interface PageHit {
   page: string;
   hits: number;
+  customer_id?: string;
 }
 
 interface Customer {
@@ -47,9 +48,8 @@ const WebsiteHitsPage: React.FC = () => {
   const fetchHits = async () => {
     try {
       setRefreshing(true);
-      const url = new URL(`${import.meta.env.VITE_API_URL}/get_traffic.php`);
+      const url = new URL(`${import.meta.env.VITE_API_URL}/get_traffic_data.php`);
       
-      // Add any query parameters if needed
       if (selectedCustomer) {
         url.searchParams.append('customer_id', selectedCustomer);
       }
@@ -176,6 +176,9 @@ const WebsiteHitsPage: React.FC = () => {
                 <thead className="bg-gray-900">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Page URL</th>
+                    {user?.role === 'admin' && (
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Customer ID</th>
+                    )}
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase">Hits</th>
                   </tr>
                 </thead>
@@ -186,6 +189,11 @@ const WebsiteHitsPage: React.FC = () => {
                         <td className="px-6 py-4 text-sm text-white">
                           {hit.page}
                         </td>
+                        {user?.role === 'admin' && (
+                          <td className="px-6 py-4 text-sm text-gray-300">
+                            {hit.customer_id}
+                          </td>
+                        )}
                         <td className="px-6 py-4 text-right text-sm text-gray-300">
                           {hit.hits.toLocaleString()}
                         </td>
@@ -193,7 +201,7 @@ const WebsiteHitsPage: React.FC = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={2} className="px-6 py-4 text-center text-gray-400">
+                      <td colSpan={user?.role === 'admin' ? 3 : 2} className="px-6 py-4 text-center text-gray-400">
                         No hits found
                       </td>
                     </tr>
