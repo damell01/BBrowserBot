@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { Search, Plus, Pencil, Trash2, X } from 'lucide-react';
+import { Search, Plus, Pencil, Trash2, X, CheckCircle2, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface User {
@@ -9,6 +9,7 @@ interface User {
   email: string;
   company_name: string;
   role: 'admin' | 'customer';
+  status: 'active' | 'inactive';
   created_at: string;
 }
 
@@ -18,6 +19,7 @@ interface UserFormData {
   password: string;
   company_name: string;
   role: 'admin' | 'customer';
+  status: 'active' | 'inactive';
 }
 
 const UsersManagementPage: React.FC = () => {
@@ -31,7 +33,8 @@ const UsersManagementPage: React.FC = () => {
     email: '',
     password: '',
     company_name: '',
-    role: 'customer'
+    role: 'customer',
+    status: 'inactive'
   });
 
   useEffect(() => {
@@ -111,6 +114,33 @@ const UsersManagementPage: React.FC = () => {
     }
   };
 
+  const handleStatusToggle = async (userId: string, currentStatus: 'active' | 'inactive') => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/update_user_status.php`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: userId,
+          status: currentStatus === 'active' ? 'inactive' : 'active'
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        toast.success('User status updated successfully');
+        fetchUsers();
+      } else {
+        throw new Error(data.error || 'Failed to update user status');
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update user status');
+    }
+  };
+
   const handleEdit = (user: User) => {
     setEditingUser(user);
     setFormData({
@@ -118,7 +148,8 @@ const UsersManagementPage: React.FC = () => {
       email: user.email,
       password: '',
       company_name: user.company_name,
-      role: user.role
+      role: user.role,
+      status: user.status
     });
     setShowModal(true);
   };
@@ -129,7 +160,8 @@ const UsersManagementPage: React.FC = () => {
       email: '',
       password: '',
       company_name: '',
-      role: 'customer'
+      role: 'customer',
+      status: 'inactive'
     });
     setEditingUser(null);
   };
@@ -184,6 +216,7 @@ const UsersManagementPage: React.FC = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Email</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Company</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Role</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Status</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Created</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase">Actions</th>
                 </tr>
@@ -202,6 +235,28 @@ const UsersManagementPage: React.FC = () => {
                       }`}>
                         {user.role}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <button
+                        onClick={() => handleStatusToggle(user.id, user.status)}
+                        className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          user.status === 'active'
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                            : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                        }`}
+                      >
+                        {user.status === 'active' ? (
+                          <>
+                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                            Active
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="w-3 h-3 mr-1" />
+                            Inactive
+                          </>
+                        )}
+                      </button>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                       {new Date(user.created_at).toLocaleDateString()}
@@ -308,6 +363,20 @@ const UsersManagementPage: React.FC = () => {
                     >
                       <option value="customer">Customer</option>
                       <option value="admin">Admin</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' })}
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
                     </select>
                   </div>
                 </div>
