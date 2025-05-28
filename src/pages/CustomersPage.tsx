@@ -31,7 +31,37 @@ const CustomersPage: React.FC = () => {
       setLoading(true);
       const response = await getCustomers();
       if (response.success && response.user?.data) {
-        setCustomers(response.user.data);
+        const customersData = response.user.data;
+        
+        // Fetch status for each customer
+        const customersWithStatus = await Promise.all(
+          customersData.map(async (customer: Customer) => {
+            try {
+              const statusResponse = await fetch(`${import.meta.env.VITE_API_URL}/check_status.php`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ customer_id: customer.customer_id }),
+              });
+              
+              const statusData = await statusResponse.json();
+              return {
+                ...customer,
+                status: statusData.success ? statusData.status : 'inactive'
+              };
+            } catch (error) {
+              console.error(`Failed to fetch status for customer ${customer.customer_id}:`, error);
+              return {
+                ...customer,
+                status: 'inactive'
+              };
+            }
+          })
+        );
+        
+        setCustomers(customersWithStatus);
       }
     } catch (error) {
       toast.error('Failed to fetch customers');
