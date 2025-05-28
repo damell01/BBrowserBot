@@ -24,7 +24,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   
   // Check if user needs to subscribe - only redirect to paywall if status is inactive
   if (user?.role === 'customer' && user?.status === 'inactive' && window.location.pathname !== '/paywall') {
-    return <Navigate to="/paywall" replace />;
+    return <Navigate to="/paywall\" replace />;
   }
   
   // Check role requirements
