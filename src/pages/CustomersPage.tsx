@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { getCustomers, exportCustomerLeads } from '../lib/api';
-import { Search, Download, Users, CheckCircle2, XCircle } from 'lucide-react';
+import { Search, Download, Users } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 interface Customer {
@@ -14,7 +14,6 @@ interface Customer {
   lead_limit: string;
   last_active: string;
   monthly_value: string;
-  status: 'active' | 'inactive';
 }
 
 const CustomersPage: React.FC = () => {
@@ -31,37 +30,7 @@ const CustomersPage: React.FC = () => {
       setLoading(true);
       const response = await getCustomers();
       if (response.success && response.user?.data) {
-        const customersData = response.user.data;
-        
-        // Fetch status for each customer
-        const customersWithStatus = await Promise.all(
-          customersData.map(async (customer: Customer) => {
-            try {
-              const statusResponse = await fetch(`${import.meta.env.VITE_API_URL}/check_status.php`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ customer_id: customer.customer_id }),
-              });
-              
-              const statusData = await statusResponse.json();
-              return {
-                ...customer,
-                status: statusData.success ? statusData.status : 'inactive'
-              };
-            } catch (error) {
-              console.error(`Failed to fetch status for customer ${customer.customer_id}:`, error);
-              return {
-                ...customer,
-                status: 'inactive'
-              };
-            }
-          })
-        );
-        
-        setCustomers(customersWithStatus);
+        setCustomers(response.user.data);
       }
     } catch (error) {
       toast.error('Failed to fetch customers');
@@ -145,23 +114,13 @@ const CustomersPage: React.FC = () => {
                   </div>
                   
                   <div className="flex items-center gap-4">
-                    <div className={`flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                      customer.status === 'active'
+                    <span className={`px-3 py-1 text-sm rounded-full ${
+                      parseInt(customer.lead_count) > 0
                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                        : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                        : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                     }`}>
-                      {customer.status === 'active' ? (
-                        <>
-                          <CheckCircle2 className="w-4 h-4 mr-1.5" />
-                          Active
-                        </>
-                      ) : (
-                        <>
-                          <XCircle className="w-4 h-4 mr-1.5" />
-                          Inactive
-                        </>
-                      )}
-                    </div>
+                      {parseInt(customer.lead_count) > 0 ? 'Active' : 'Inactive'}
+                    </span>
 
                     <button
                       onClick={() => handleExportLeads(customer.customer_id)}
