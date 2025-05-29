@@ -19,15 +19,7 @@ interface LeadsContextType {
   loading: boolean;
   error: string | null;
   updateLeadStatus: (id: string, status: Lead['status']) => Promise<void>;
-  leadsQuota: number;
-  updateLeadsQuota: (newQuota: number) => Promise<void>;
-  stats: {
-    total: number;
-    new: number;
-    contacted: number;
-    qualified: number;
-    converted: number;
-  };
+  refreshLeads: () => Promise<void>;
 }
 
 const LeadsContext = createContext<LeadsContextType | undefined>(undefined);
@@ -36,20 +28,11 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [leadsQuota, setLeadsQuota] = useState(500); // Default quota
   const { user } = useAuth();
 
-  useEffect(() => {
-    if (user) {
-      fetchLeads();
-      // Set initial quota from user data if available
-      if (user.leadsQuota) {
-        setLeadsQuota(user.leadsQuota);
-      }
-    }
-  }, [user]);
-
   const fetchLeads = async () => {
+    if (!user) return;
+    
     try {
       const response = await api.getLeads();
       
@@ -89,6 +72,12 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  useEffect(() => {
+    if (user) {
+      fetchLeads();
+    }
+  }, [user]);
+
   const updateLeadStatus = async (id: string, status: Lead['status']) => {
     try {
       const response = await api.updateLeadStatus(id, status);
@@ -106,28 +95,6 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const updateLeadsQuota = async (newQuota: number) => {
-    try {
-      const response = await api.updateLeadsQuota(newQuota);
-      if (response.success) {
-        setLeadsQuota(newQuota);
-        return;
-      }
-      throw new Error('Failed to update leads quota');
-    } catch (error) {
-      toast.error('Failed to update leads quota');
-      throw error;
-    }
-  };
-
-  const stats = {
-    total: leads.length,
-    new: leads.filter(lead => lead.status === 'new').length,
-    contacted: leads.filter(lead => lead.status === 'contacted').length,
-    qualified: leads.filter(lead => lead.status === 'qualified').length,
-    converted: leads.filter(lead => lead.status === 'converted').length,
-  };
-
   return (
     <LeadsContext.Provider 
       value={{ 
@@ -135,9 +102,7 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         loading,
         error,
         updateLeadStatus,
-        leadsQuota,
-        updateLeadsQuota,
-        stats
+        refreshLeads: fetchLeads
       }}
     >
       {children}
