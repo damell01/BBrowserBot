@@ -12,6 +12,7 @@ interface User {
   status: 'active' | 'inactive';
   stripe_customer_id?: string;
   stripe_subscription_id?: string;
+  lead_count: number;
   created_at: string;
 }
 
@@ -24,6 +25,7 @@ interface UserFormData {
   status: 'active' | 'inactive';
   stripe_customer_id: string;
   stripe_subscription_id: string;
+  lead_count: number;
 }
 
 const UsersManagementPage: React.FC = () => {
@@ -40,7 +42,8 @@ const UsersManagementPage: React.FC = () => {
     role: 'customer',
     status: 'inactive',
     stripe_customer_id: '',
-    stripe_subscription_id: ''
+    stripe_subscription_id: '',
+    lead_count: 0
   });
 
   useEffect(() => {
@@ -130,7 +133,8 @@ const UsersManagementPage: React.FC = () => {
       role: user.role,
       status: user.status,
       stripe_customer_id: user.stripe_customer_id || '',
-      stripe_subscription_id: user.stripe_subscription_id || ''
+      stripe_subscription_id: user.stripe_subscription_id || '',
+      lead_count: user.lead_count || 0
     });
     setShowModal(true);
   };
@@ -144,7 +148,8 @@ const UsersManagementPage: React.FC = () => {
       role: 'customer',
       status: 'inactive',
       stripe_customer_id: '',
-      stripe_subscription_id: ''
+      stripe_subscription_id: '',
+      lead_count: 0
     });
     setEditingUser(null);
   };
@@ -200,6 +205,7 @@ const UsersManagementPage: React.FC = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Company</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Role</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Leads</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Created</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase">Actions</th>
                 </tr>
@@ -227,6 +233,9 @@ const UsersManagementPage: React.FC = () => {
                       }`}>
                         {user.status}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                      {user.lead_count}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                       {new Date(user.created_at).toLocaleDateString()}
@@ -348,6 +357,19 @@ const UsersManagementPage: React.FC = () => {
                       <option value="active">Active</option>
                       <option value="inactive">Inactive</option>
                     </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Lead Count
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.lead_count}
+                      onChange={(e) => setFormData({ ...formData, lead_count: parseInt(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                      min="0"
+                    />
                   </div>
 
                   <div>
