@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 
 interface User {
   id: string;
+  customer_id: string;
   name: string;
   email: string;
   company_name: string;
@@ -17,6 +18,7 @@ interface User {
 }
 
 interface UserFormData {
+  customer_id: string;
   name: string;
   email: string;
   password: string;
@@ -35,6 +37,7 @@ const UsersManagementPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [formData, setFormData] = useState<UserFormData>({
+    customer_id: '',
     name: '',
     email: '',
     password: '',
@@ -126,6 +129,7 @@ const UsersManagementPage: React.FC = () => {
   const handleEdit = (user: User) => {
     setEditingUser(user);
     setFormData({
+      customer_id: user.customer_id,
       name: user.name,
       email: user.email,
       password: '',
@@ -141,6 +145,7 @@ const UsersManagementPage: React.FC = () => {
 
   const resetForm = () => {
     setFormData({
+      customer_id: '',
       name: '',
       email: '',
       password: '',
