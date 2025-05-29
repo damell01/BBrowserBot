@@ -9,6 +9,9 @@ interface User {
   email: string;
   company_name: string;
   role: 'admin' | 'customer';
+  status: 'active' | 'inactive';
+  stripe_customer_id?: string;
+  stripe_subscription_id?: string;
   created_at: string;
 }
 
@@ -18,6 +21,9 @@ interface UserFormData {
   password: string;
   company_name: string;
   role: 'admin' | 'customer';
+  status: 'active' | 'inactive';
+  stripe_customer_id: string;
+  stripe_subscription_id: string;
 }
 
 const UsersManagementPage: React.FC = () => {
@@ -31,7 +37,10 @@ const UsersManagementPage: React.FC = () => {
     email: '',
     password: '',
     company_name: '',
-    role: 'customer'
+    role: 'customer',
+    status: 'inactive',
+    stripe_customer_id: '',
+    stripe_subscription_id: ''
   });
 
   useEffect(() => {
@@ -118,7 +127,10 @@ const UsersManagementPage: React.FC = () => {
       email: user.email,
       password: '',
       company_name: user.company_name,
-      role: user.role
+      role: user.role,
+      status: user.status,
+      stripe_customer_id: user.stripe_customer_id || '',
+      stripe_subscription_id: user.stripe_subscription_id || ''
     });
     setShowModal(true);
   };
@@ -129,7 +141,10 @@ const UsersManagementPage: React.FC = () => {
       email: '',
       password: '',
       company_name: '',
-      role: 'customer'
+      role: 'customer',
+      status: 'inactive',
+      stripe_customer_id: '',
+      stripe_subscription_id: ''
     });
     setEditingUser(null);
   };
@@ -184,6 +199,7 @@ const UsersManagementPage: React.FC = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Email</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Company</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Role</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Status</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Created</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase">Actions</th>
                 </tr>
@@ -201,6 +217,15 @@ const UsersManagementPage: React.FC = () => {
                           : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                       }`}>
                         {user.role}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        user.status === 'active' 
+                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                          : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                      }`}>
+                        {user.status}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
@@ -309,6 +334,46 @@ const UsersManagementPage: React.FC = () => {
                       <option value="customer">Customer</option>
                       <option value="admin">Admin</option>
                     </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' })}
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Stripe Customer ID
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.stripe_customer_id}
+                      onChange={(e) => setFormData({ ...formData, stripe_customer_id: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                      placeholder="cus_..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Stripe Subscription ID
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.stripe_subscription_id}
+                      onChange={(e) => setFormData({ ...formData, stripe_subscription_id: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                      placeholder="sub_..."
+                    />
                   </div>
                 </div>
 
