@@ -17,13 +17,6 @@ const IntegrationsPage: React.FC = () => {
       features: ['Contact creation', 'Deal pipeline sync', 'Activity tracking'],
       icon: <Users className="h-8 w-8 text-orange-400" />,
       color: 'orange'
-    },
-    {
-      name: 'Salesforce',
-      description: 'Enterprise-grade CRM integration with complete data synchronization.',
-      features: ['Bi-directional sync', 'Custom object support', 'Advanced reporting'],
-      icon: <Bot className="h-8 w-8 text-blue-400" />,
-      color: 'blue'
     }
   ];
 
