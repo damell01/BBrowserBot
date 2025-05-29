@@ -264,7 +264,7 @@ const UsersManagementPage: React.FC = () => {
         {/* Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-gray-800 rounded-lg w-full max-w-md">
+            <div className="bg-gray-800 rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
               <div className="flex items-center justify-between p-6 border-b border-gray-700">
                 <h3 className="text-lg font-medium text-white">
                   {editingUser ? 'Edit User' : 'Add New User'}
@@ -277,8 +277,8 @@ const UsersManagementPage: React.FC = () => {
                 </button>
               </div>
               
-              <form onSubmit={handleSubmit} className="p-6">
-                <div className="space-y-4">
+              <div className="overflow-y-auto flex-1 p-6">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1">
                       Name
@@ -397,24 +397,24 @@ const UsersManagementPage: React.FC = () => {
                       placeholder="sub_..."
                     />
                   </div>
-                </div>
+                </form>
+              </div>
 
-                <div className="mt-6 flex justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white bg-gray-700 rounded-lg hover:bg-gray-600"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
-                  >
-                    {editingUser ? 'Update User' : 'Create User'}
-                  </button>
-                </div>
-              </form>
+              <div className="p-6 border-t border-gray-700 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white bg-gray-700 rounded-lg hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                >
+                  {editingUser ? 'Update User' : 'Create User'}
+                </button>
+              </div>
             </div>
           </div>
         )}
