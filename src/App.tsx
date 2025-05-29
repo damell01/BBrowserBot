@@ -202,7 +202,7 @@ function App() {
               } 
             />
             
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/" element={<Navigate to="/login\" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Router>
@@ -210,3 +210,5 @@ function App() {
     </AuthProvider>
   );
 }
+
+export default App
