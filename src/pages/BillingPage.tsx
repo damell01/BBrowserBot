@@ -8,6 +8,19 @@ import toast from 'react-hot-toast';
 const BillingPage: React.FC = () => {
   const { stats } = useLeads();
 
+  // Mock weekly data - in production this would come from your API
+  const weeklyLeads = [
+    { day: 'Monday', count: 12 },
+    { day: 'Tuesday', count: 15 },
+    { day: 'Wednesday', count: 8 },
+    { day: 'Thursday', count: 20 },
+    { day: 'Friday', count: 18 },
+    { day: 'Saturday', count: 5 },
+    { day: 'Sunday', count: 4 }
+  ];
+
+  const totalWeeklyLeads = weeklyLeads.reduce((sum, day) => sum + day.count, 0);
+
   const handleUpgrade = async () => {
     try {
       const { url } = await redirectToCustomerPortal();
@@ -20,7 +33,55 @@ const BillingPage: React.FC = () => {
   return (
     <DashboardLayout title="Billing & Usage">
       <div className="max-w-4xl mx-auto">
-        {/* Usage Overview */}
+        {/* Weekly Lead Counter */}
+        <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-white mb-2">Weekly Lead Activity</h2>
+              <p className="text-gray-400">Your lead generation performance this week</p>
+            </div>
+            <div className="px-4 py-2 bg-blue-500/20 rounded-lg border border-blue-500/30">
+              <div className="text-sm text-gray-400">Total Weekly Leads</div>
+              <div className="text-2xl font-bold text-white">{totalWeeklyLeads}</div>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="py-3 text-left text-xs font-medium text-gray-400 uppercase">Day</th>
+                  <th className="py-3 text-left text-xs font-medium text-gray-400 uppercase">Leads</th>
+                  <th className="py-3 text-left text-xs font-medium text-gray-400 uppercase">Trend</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-700">
+                {weeklyLeads.map((day, index) => (
+                  <tr key={day.day} className="hover:bg-gray-750">
+                    <td className="py-3 text-sm text-white">{day.day}</td>
+                    <td className="py-3 text-sm text-gray-300">{day.count}</td>
+                    <td className="py-3">
+                      {index > 0 && (
+                        <span className={`inline-flex items-center text-xs ${
+                          day.count >= weeklyLeads[index - 1].count
+                            ? 'text-emerald-400'
+                            : 'text-rose-400'
+                        }`}>
+                          <TrendingUp className={`h-4 w-4 mr-1 ${
+                            day.count < weeklyLeads[index - 1].count && 'transform rotate-180'
+                          }`} />
+                          {Math.abs(day.count - weeklyLeads[index - 1].count)}
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Subscription Management */}
         <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-8">
           <div className="flex items-start justify-between mb-6">
             <div>
