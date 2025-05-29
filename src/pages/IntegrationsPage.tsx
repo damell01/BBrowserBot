@@ -1,6 +1,6 @@
 import React from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { ExternalLink, AlertCircle, Bot, MessageSquare, Users, Calendar } from 'lucide-react';
+import { ExternalLink, AlertCircle, Bot, MessageSquare, Users } from 'lucide-react';
 
 const IntegrationsPage: React.FC = () => {
   const upcomingIntegrations = [
@@ -24,13 +24,6 @@ const IntegrationsPage: React.FC = () => {
       features: ['Bi-directional sync', 'Custom object support', 'Advanced reporting'],
       icon: <Bot className="h-8 w-8 text-blue-400" />,
       color: 'blue'
-    },
-    {
-      name: 'Calendly',
-      description: 'Automatically schedule meetings when leads are captured.',
-      features: ['Meeting scheduling', 'Calendar sync', 'Automated reminders'],
-      icon: <Calendar className="h-8 w-8 text-emerald-400" />,
-      color: 'emerald'
     }
   ];
 
