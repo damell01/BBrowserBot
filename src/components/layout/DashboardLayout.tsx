@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
-import { Menu, ChevronRight } from 'lucide-react';
+import { Menu, ChevronRight, TrendingUp } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLeads } from '../../context/LeadsContext';
 
@@ -13,7 +13,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
-  const { stats, leadsQuota } = useLeads();
+  const { leads } = useLeads();
   
   useEffect(() => {
     const checkIfMobile = () => {
@@ -32,10 +32,18 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
     setSidebarOpen(!sidebarOpen);
   };
 
-  const getNextTier = (currentLeads: number) => {
-    const tiers = [500, 1000, 2500, 5000];
-    return tiers.find(tier => tier > currentLeads) || 'Custom';
+  // Calculate weekly leads
+  const getWeeklyLeads = () => {
+    const now = new Date();
+    const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+    
+    return leads.filter(lead => {
+      const leadDate = new Date(lead.createdAt);
+      return leadDate >= startOfWeek;
+    }).length;
   };
+
+  const weeklyLeadCount = getWeeklyLeads();
   
   return (
     <div className="flex h-screen bg-gray-950 text-gray-100">
@@ -46,24 +54,24 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Leads Usage Banner - Only show for customers */}
+        {/* Weekly Leads Banner - Only show for customers */}
         {user?.role === 'customer' && (
           <div className="bg-gray-800 border-b border-gray-700">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-400">
-                    {stats.total.toLocaleString()} / {leadsQuota.toLocaleString()} leads
-                  </span>
+                  <span className="text-sm text-gray-400">Weekly Leads:</span>
+                  <span className="text-sm font-medium text-white">{weeklyLeadCount}</span>
                   <ChevronRight className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm text-blue-400">
-                    Next tier at {getNextTier(leadsQuota).toLocaleString()} leads
-                  </span>
+                  <div className="flex items-center text-sm">
+                    <TrendingUp className="h-4 w-4 text-blue-400 mr-1" />
+                    <span className="text-blue-400">This Week's Activity</span>
+                  </div>
                 </div>
                 <div className="h-1.5 w-32 bg-gray-700 rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-blue-500 rounded-full"
-                    style={{ width: `${Math.min((stats.total / leadsQuota) * 100, 100)}%` }}
+                    style={{ width: '100%' }}
                   />
                 </div>
               </div>
