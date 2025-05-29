@@ -14,6 +14,7 @@ import CustomerDashboardPage from './pages/CustomerDashboardPage';
 import PixelSetupPage from './pages/PixelSetupPage';
 import LegalBestPracticesPage from './pages/LegalBestPracticesPage';
 import CrmIntegrationPage from './pages/CrmIntegrationPage';
+import IntegrationsPage from './pages/IntegrationsPage';
 import SupportPage from './pages/SupportPage';
 import BillingPage from './pages/BillingPage';
 import RoiCalculatorPage from './pages/RoiCalculatorPage';
@@ -157,6 +158,15 @@ function App() {
             />
 
             <Route 
+              path="/integrations" 
+              element={
+                <ProtectedRoute requiredRole="customer">
+                  <IntegrationsPage />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
               path="/support" 
               element={
                 <ProtectedRoute requiredRole="customer">
@@ -192,7 +202,7 @@ function App() {
               } 
             />
             
-            <Route path="/" element={<Navigate to="/login\" replace />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Router>
@@ -200,5 +210,3 @@ function App() {
     </AuthProvider>
   );
 }
-
-export default App;

@@ -15,7 +15,8 @@ import {
   Calculator,
   Scale,
   Activity,
-  MessageSquare
+  MessageSquare,
+  Plug
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -56,6 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile, isOpen, toggleSidebar }) =>
     { path: '/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
     { path: '/pixel-setup', icon: <PlusCircle size={20} />, label: 'Bot Setup' },
     { path: '/hits', icon: <Activity size={20} />, label: 'Website Hits' },
+    { path: '/integrations', icon: <Plug size={20} />, label: 'Integrations' },
     { path: '/legal-best-practices', icon: <Scale size={20} />, label: 'Legal Best Practices' },
     { path: '/roi-calculator', icon: <Calculator size={20} />, label: 'ROI Calculator' },
     { path: '/support', icon: <HelpCircle size={20} />, label: 'Support' },
