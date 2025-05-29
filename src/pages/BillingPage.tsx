@@ -6,19 +6,28 @@ import { useLeads } from '../context/LeadsContext';
 import toast from 'react-hot-toast';
 
 const BillingPage: React.FC = () => {
-  const { stats } = useLeads();
+  const { leads } = useLeads();
 
-  // Mock weekly data - in production this would come from your API
-  const weeklyLeads = [
-    { day: 'Monday', count: 12 },
-    { day: 'Tuesday', count: 15 },
-    { day: 'Wednesday', count: 8 },
-    { day: 'Thursday', count: 20 },
-    { day: 'Friday', count: 18 },
-    { day: 'Saturday', count: 5 },
-    { day: 'Sunday', count: 4 }
-  ];
+  // Calculate weekly leads by day
+  const getWeeklyLeadsByDay = () => {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const now = new Date();
+    const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+    
+    const weeklyLeads = days.map(day => ({
+      day,
+      count: leads.filter(lead => {
+        const leadDate = new Date(lead.createdAt);
+        return leadDate >= startOfWeek && 
+               leadDate.getDay() === days.indexOf(day);
+      }).length
+    }));
 
+    // Rotate array so it starts with Monday
+    return [...weeklyLeads.slice(1), weeklyLeads[0]];
+  };
+
+  const weeklyLeads = getWeeklyLeadsByDay();
   const totalWeeklyLeads = weeklyLeads.reduce((sum, day) => sum + day.count, 0);
 
   const handleUpgrade = async () => {
@@ -104,10 +113,10 @@ const BillingPage: React.FC = () => {
                 </div>
                 <h4 className="font-medium text-white">Total Leads</h4>
               </div>
-              <p className="text-2xl font-bold text-white">{stats.total.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-white">{leads.length.toLocaleString()}</p>
               <div className="mt-2 flex items-center gap-2">
-                <span className="text-sm text-gray-400">New this month:</span>
-                <span className="text-sm font-medium text-emerald-400">{stats.new.toLocaleString()}</span>
+                <span className="text-sm text-gray-400">New this week:</span>
+                <span className="text-sm font-medium text-emerald-400">{totalWeeklyLeads.toLocaleString()}</span>
               </div>
             </div>
 
@@ -119,11 +128,15 @@ const BillingPage: React.FC = () => {
                 <h4 className="font-medium text-white">Conversion Rate</h4>
               </div>
               <p className="text-2xl font-bold text-white">
-                {((stats.converted / stats.total) * 100).toFixed(1)}%
+                {leads.length > 0 
+                  ? ((leads.filter(lead => lead.status === 'converted').length / leads.length) * 100).toFixed(1)
+                  : '0.0'}%
               </p>
               <div className="mt-2 flex items-center gap-2">
                 <span className="text-sm text-gray-400">Converted leads:</span>
-                <span className="text-sm font-medium text-emerald-400">{stats.converted.toLocaleString()}</span>
+                <span className="text-sm font-medium text-emerald-400">
+                  {leads.filter(lead => lead.status === 'converted').length.toLocaleString()}
+                </span>
               </div>
             </div>
           </div>
