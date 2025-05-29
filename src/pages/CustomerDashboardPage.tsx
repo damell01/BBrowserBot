@@ -16,7 +16,7 @@ const CustomerDashboardPage: React.FC = () => {
   const dashboardStats = {
     total: stats.total,
     new: stats.new,
-    trafficResolved: 68,
+    trafficResolved: Math.round((stats.contacted + stats.qualified + stats.converted) / stats.total * 100) || 0,
     pipelineValue: stats.total * 1000
   };
 

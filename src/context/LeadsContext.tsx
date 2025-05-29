@@ -14,8 +14,17 @@ export interface Lead {
   status: 'new' | 'contacted' | 'qualified' | 'converted';
 }
 
+export interface Stats {
+  total: number;
+  new: number;
+  contacted: number;
+  qualified: number;
+  converted: number;
+}
+
 interface LeadsContextType {
   leads: Lead[];
+  stats: Stats;
   loading: boolean;
   error: string | null;
   updateLeadStatus: (id: string, status: Lead['status']) => Promise<void>;
@@ -26,9 +35,26 @@ const LeadsContext = createContext<LeadsContextType | undefined>(undefined);
 
 export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [stats, setStats] = useState<Stats>({
+    total: 0,
+    new: 0,
+    contacted: 0,
+    qualified: 0,
+    converted: 0
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
+
+  const calculateStats = (leads: Lead[]): Stats => {
+    return {
+      total: leads.length,
+      new: leads.filter(lead => lead.status === 'new').length,
+      contacted: leads.filter(lead => lead.status === 'contacted').length,
+      qualified: leads.filter(lead => lead.status === 'qualified').length,
+      converted: leads.filter(lead => lead.status === 'converted').length
+    };
+  };
 
   const fetchLeads = async () => {
     if (!user) return;
@@ -61,6 +87,7 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }));
 
         setLeads(formattedLeads);
+        setStats(calculateStats(formattedLeads));
       } else {
         throw new Error('Invalid response format');
       }
@@ -82,9 +109,11 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       const response = await api.updateLeadStatus(id, status);
       if (response.success) {
-        setLeads(leads.map(lead => 
+        const updatedLeads = leads.map(lead => 
           lead.id === id ? { ...lead, status } : lead
-        ));
+        );
+        setLeads(updatedLeads);
+        setStats(calculateStats(updatedLeads));
         toast.success('Lead status updated');
       } else {
         throw new Error('Failed to update lead status');
@@ -99,6 +128,7 @@ export const LeadsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <LeadsContext.Provider 
       value={{ 
         leads,
+        stats,
         loading,
         error,
         updateLeadStatus,
