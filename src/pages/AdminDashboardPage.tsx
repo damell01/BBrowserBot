@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { getCustomers, exportCustomerLeads } from '../lib/api';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { Download, Search, DollarSign, Users, Activity, Building } from 'lucide-react';
+import { Download, Search, DollarSign, Users, Activity, Building, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface Customer {
   id: string;
@@ -17,14 +17,23 @@ interface Customer {
   monthly_value: string;
 }
 
+interface WeeklyLead {
+  customer_id: string;
+  week_start: string;
+  week_number: number;
+  lead_count: number;
+}
+
 const AdminDashboardPage: React.FC = () => {
   const { user } = useAuth();
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [weeklyLeads, setWeeklyLeads] = useState<WeeklyLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchCustomers();
+    fetchWeeklyLeads();
   }, []);
 
   const fetchCustomers = async () => {
@@ -38,6 +47,23 @@ const AdminDashboardPage: React.FC = () => {
       toast.error('Failed to fetch customers');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchWeeklyLeads = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/weekly_leadcount.php`, {
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      
+      if (data.success && data.all_weekly_leads) {
+        setWeeklyLeads(data.all_weekly_leads);
+      }
+    } catch (error) {
+      console.error('Failed to fetch weekly leads:', error);
+      toast.error('Failed to fetch weekly leads');
     }
   };
 
@@ -59,6 +85,27 @@ const AdminDashboardPage: React.FC = () => {
   const activeCustomers = customers.filter(c => parseInt(c.lead_count) > 0).length;
   const monthlyRevenue = customers.reduce((sum, customer) => sum + parseInt(customer.monthly_value || '0'), 0);
   const totalLeads = customers.reduce((sum, customer) => sum + parseInt(customer.lead_count), 0);
+
+  // Calculate weekly trends for each customer
+  const getCustomerWeeklyTrend = (customerId: string) => {
+    const customerWeeks = weeklyLeads
+      .filter(lead => lead.customer_id === customerId)
+      .sort((a, b) => new Date(b.week_start).getTime() - new Date(a.week_start).getTime());
+
+    if (customerWeeks.length < 2) return null;
+
+    const currentWeek = customerWeeks[0].lead_count;
+    const previousWeek = customerWeeks[1].lead_count;
+    
+    if (previousWeek === 0) return null;
+    
+    const percentageChange = ((currentWeek - previousWeek) / previousWeek) * 100;
+    return {
+      value: Math.abs(Math.round(percentageChange)),
+      direction: percentageChange >= 0 ? 'up' : 'down',
+      currentCount: currentWeek
+    };
+  };
 
   return (
     <DashboardLayout title="Admin Dashboard">
@@ -120,7 +167,10 @@ const AdminDashboardPage: React.FC = () => {
       {/* Customer Management Section */}
       <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-semibold text-white">Customer Management</h3>
+          <div>
+            <h2 className="text-xl font-bold text-white mb-2">Customer Management</h2>
+            <p className="text-gray-400">Manage system users and their roles</p>
+          </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
@@ -140,43 +190,63 @@ const AdminDashboardPage: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredCustomers.map((customer) => (
-              <div 
-                key={customer.id} 
-                className="flex items-center justify-between p-4 bg-gray-900 rounded-lg border border-gray-700 hover:border-blue-500/30 transition-all duration-200"
-              >
-                <div>
-                  <h4 className="font-medium text-white">{customer.name}</h4>
-                  <p className="text-sm text-gray-400">{customer.email}</p>
-                  <div className="mt-1 flex items-center gap-4">
-                    <span className="text-xs text-gray-500">
-                      Leads: {customer.lead_count} / {customer.lead_limit}
+            {filteredCustomers.map((customer) => {
+              const weeklyTrend = getCustomerWeeklyTrend(customer.customer_id);
+              
+              return (
+                <div 
+                  key={customer.id} 
+                  className="flex items-center justify-between p-4 bg-gray-900 rounded-lg border border-gray-700 hover:border-blue-500/30 transition-all duration-200"
+                >
+                  <div>
+                    <h4 className="font-medium text-white">{customer.name}</h4>
+                    <p className="text-sm text-gray-400">{customer.email}</p>
+                    <div className="mt-2 flex items-center gap-6">
+                      <span className="text-xs text-gray-500">
+                        Total Leads: {customer.lead_count} / {customer.lead_limit}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        Monthly Value: ${parseInt(customer.monthly_value || '0').toLocaleString()}
+                      </span>
+                      {weeklyTrend && (
+                        <span className="flex items-center text-xs">
+                          <span className="text-gray-500 mr-2">This Week: {weeklyTrend.currentCount}</span>
+                          {weeklyTrend.direction === 'up' ? (
+                            <span className="flex items-center text-emerald-400">
+                              <TrendingUp className="w-3 h-3 mr-1" />
+                              {weeklyTrend.value}%
+                            </span>
+                          ) : (
+                            <span className="flex items-center text-rose-400">
+                              <TrendingDown className="w-3 h-3 mr-1" />
+                              {weeklyTrend.value}%
+                            </span>
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      parseInt(customer.lead_count) > 0
+                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                        : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                    }`}>
+                      {parseInt(customer.lead_count) > 0 ? 'Active' : 'Inactive'}
                     </span>
-                    <span className="text-xs text-gray-500">
-                      Monthly Value: ${parseInt(customer.monthly_value || '0').toLocaleString()}
-                    </span>
+
+                    <button
+                      onClick={() => handleExportLeads(customer.customer_id)}
+                      className="flex items-center px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                    >
+                      <Download className="w-4 h-4 mr-1.5" />
+                      Export Leads
+                    </button>
                   </div>
                 </div>
-                
-                <div className="flex items-center gap-4">
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    parseInt(customer.lead_count) > 0
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                      : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                  }`}>
-                    {parseInt(customer.lead_count) > 0 ? 'Active' : 'Inactive'}
-                  </span>
-
-                  <button
-                    onClick={() => handleExportLeads(customer.customer_id)}
-                    className="flex items-center px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
-                  >
-                    <Download className="w-4 h-4 mr-1.5" />
-                    Export Leads
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
 
             {filteredCustomers.length === 0 && (
               <div className="text-center py-8 text-gray-400">
