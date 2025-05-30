@@ -15,6 +15,9 @@ interface User {
   stripe_subscription_id?: string;
   lead_count: number;
   created_at: string;
+  hubspot_api_key?: string;
+  ghl_api_key?: string;
+  zapier_webhook_url?: string;
 }
 
 interface UserFormData {
@@ -28,6 +31,9 @@ interface UserFormData {
   stripe_customer_id: string;
   stripe_subscription_id: string;
   lead_count: number;
+  hubspot_api_key: string;
+  ghl_api_key: string;
+  zapier_webhook_url: string;
 }
 
 const UsersManagementPage: React.FC = () => {
@@ -46,7 +52,10 @@ const UsersManagementPage: React.FC = () => {
     status: 'inactive',
     stripe_customer_id: '',
     stripe_subscription_id: '',
-    lead_count: 0
+    lead_count: 0,
+    hubspot_api_key: '',
+    ghl_api_key: '',
+    zapier_webhook_url: ''
   });
 
   useEffect(() => {
@@ -138,7 +147,10 @@ const UsersManagementPage: React.FC = () => {
       status: user.status,
       stripe_customer_id: user.stripe_customer_id || '',
       stripe_subscription_id: user.stripe_subscription_id || '',
-      lead_count: user.lead_count || 0
+      lead_count: user.lead_count || 0,
+      hubspot_api_key: user.hubspot_api_key || '',
+      ghl_api_key: user.ghl_api_key || '',
+      zapier_webhook_url: user.zapier_webhook_url || ''
     });
     setShowModal(true);
   };
@@ -154,7 +166,10 @@ const UsersManagementPage: React.FC = () => {
       status: 'inactive',
       stripe_customer_id: '',
       stripe_subscription_id: '',
-      lead_count: 0
+      lead_count: 0,
+      hubspot_api_key: '',
+      ghl_api_key: '',
+      zapier_webhook_url: ''
     });
     setEditingUser(null);
   };
@@ -400,6 +415,45 @@ const UsersManagementPage: React.FC = () => {
                       onChange={(e) => setFormData({ ...formData, stripe_subscription_id: e.target.value })}
                       className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
                       placeholder="sub_..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      HubSpot API Key
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.hubspot_api_key}
+                      onChange={(e) => setFormData({ ...formData, hubspot_api_key: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                      placeholder="Enter HubSpot API key"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      GoHighLevel API Key
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.ghl_api_key}
+                      onChange={(e) => setFormData({ ...formData, ghl_api_key: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                      placeholder="Enter GoHighLevel API key"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Zapier Webhook URL
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.zapier_webhook_url}
+                      onChange={(e) => setFormData({ ...formData, zapier_webhook_url: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                      placeholder="Enter Zapier webhook URL"
                     />
                   </div>
                 </form>
