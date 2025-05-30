@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { ExternalLink, AlertCircle, Bot, MessageSquare, Users, Loader2, Eye, EyeOff, Pencil, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { ExternalLink, AlertCircle, Bot, MessageSquare, Users, Loader2, Eye, EyeOff, Pencil, Check, X, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
@@ -109,12 +109,13 @@ const IntegrationsPage: React.FC = () => {
       inputPlaceholder: 'Enter your GoHighLevel API key',
       instructions: [
         'Log in to your GoHighLevel account',
-        'Go to Settings > API & Webhooks',
-        'Click on "Create New API Key"',
-        'Name your API key (e.g., "BrowserBot Integration")',
-        'Copy the generated API key',
+        'Go to Settings (gear icon in the left sidebar)',
+        'Click Company Settings or Agency Settings',
+        'Scroll down to find the API Key section',
+        'Copy the API key shown there',
         'Paste the API key in the field below'
-      ]
+      ],
+      additionalInfo: '🔒 GHL uses a simple Bearer token (no extra auth setup needed)'
     },
     {
       id: 'hubspot_api_key',
@@ -124,16 +125,17 @@ const IntegrationsPage: React.FC = () => {
       icon: <Users className="h-8 w-8 text-orange-400" />,
       color: 'orange',
       inputLabel: 'Private App Token',
-      inputPlaceholder: 'Enter your HubSpot Private App Token',
+      inputPlaceholder: 'Enter your HubSpot Private App Token (starts with pat-)',
       instructions: [
-        'Log in to your HubSpot account',
-        'Go to Settings > Account Setup > Private Apps',
-        'Click "Create private app"',
-        'Name your app and set basic information',
-        'Select required scopes (contacts, deals, etc.)',
-        'Click "Create app" and copy the generated token',
-        'Paste the token in the field below'
-      ]
+        'Log in to your HubSpot Dashboard',
+        'Click your Profile icon > Account Settings',
+        'Go to Integrations > Private Apps in the left sidebar',
+        'Click Create Private App',
+        'Name it (e.g., "BrowserBot Integration")',
+        'In Scopes tab, add: crm.objects.contacts.read/write, crm.import, crm.export, crm.lists.read/write',
+        'Click Create App and copy your Access Token'
+      ],
+      additionalInfo: '🔒 HubSpot uses Authorization: Bearer pat-xxxx as the header'
     },
     {
       id: 'zapier_webhook_url',
@@ -232,6 +234,12 @@ const IntegrationsPage: React.FC = () => {
                         </li>
                       ))}
                     </ol>
+                    {integration.additionalInfo && (
+                      <div className="mt-4 flex items-start gap-2 text-sm">
+                        <Info className="w-4 h-4 text-blue-400 mt-0.5" />
+                        <p className="text-blue-300">{integration.additionalInfo}</p>
+                      </div>
+                    )}
                   </div>
                 )}
 
