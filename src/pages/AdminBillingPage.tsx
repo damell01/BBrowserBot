@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { CreditCard, Users, DollarSign, TrendingUp, ExternalLink, Search, TrendingDown } from 'lucide-react';
+import { CreditCard, Users, DollarSign, TrendingUp, ExternalLink, Search, TrendingDown, Eye } from 'lucide-react';
+import CustomerWeeklyLeadsModal from '../components/modals/CustomerWeeklyLeadsModal';
 
 interface WeeklyLead {
   customer_id: string;
@@ -22,6 +23,8 @@ const AdminBillingPage: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   const billingStats = {
     totalRevenue: 401850,
@@ -95,6 +98,11 @@ const AdminBillingPage: React.FC = () => {
       direction: percentageChange >= 0 ? 'up' : 'down',
       currentCount: currentWeek
     };
+  };
+
+  const handleViewCustomerLeads = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setShowModal(true);
   };
 
   const filteredCustomers = customers.filter(customer =>
@@ -194,6 +202,7 @@ const AdminBillingPage: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Current Week</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Previous Week</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Change</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-700">
@@ -235,6 +244,15 @@ const AdminBillingPage: React.FC = () => {
                             </div>
                           )}
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                          <button
+                            onClick={() => handleViewCustomerLeads(customer)}
+                            className="text-sm text-blue-400 hover:text-blue-300 flex items-center justify-end"
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            View Details
+                          </button>
+                        </td>
                       </tr>
                     );
                   })}
@@ -265,6 +283,16 @@ const AdminBillingPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Weekly Leads Modal */}
+      {selectedCustomer && (
+        <CustomerWeeklyLeadsModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          customer={selectedCustomer}
+          weeklyLeads={groupedLeads[selectedCustomer.customer_id] || []}
+        />
+      )}
     </DashboardLayout>
   );
 };
