@@ -38,7 +38,7 @@ const IntegrationsPage: React.FC = () => {
 
   const fetchStoredIntegrations = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/get_integrations.php`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/integration_updates.php`, {
         credentials: 'include'
       });
       const data = await response.json();
