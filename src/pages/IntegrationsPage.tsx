@@ -1,31 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { ExternalLink, AlertCircle, Bot, MessageSquare, Users, Loader2, Eye, EyeOff, Pencil, Check, X, ChevronDown, ChevronUp, Info, RefreshCw } from 'lucide-react';
+import { ExternalLink, AlertCircle, MessageSquare, Users, Loader2, Eye, EyeOff, Pencil, Check, X, ChevronDown, ChevronUp, Info, RefreshCw, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
 interface IntegrationFormData {
   hubspot_api_key: string;
   ghl_api_key: string;
-  zapier_webhook_url: string;
 }
 
 interface StoredIntegrations {
   hubspot_api_key: string | null;
   ghl_api_key: string | null;
-  zapier_webhook_url: string | null;
 }
 
 const IntegrationsPage: React.FC = () => {
   const [formData, setFormData] = useState<IntegrationFormData>({
     hubspot_api_key: '',
     ghl_api_key: '',
-    zapier_webhook_url: ''
   });
   const [storedIntegrations, setStoredIntegrations] = useState<StoredIntegrations>({
     hubspot_api_key: null,
     ghl_api_key: null,
-    zapier_webhook_url: null
   });
   const [loading, setLoading] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
@@ -140,24 +136,16 @@ const IntegrationsPage: React.FC = () => {
         'Save the property'
       ],
       additionalInfo: '🔒 HubSpot uses Authorization: Bearer pat-xxxx as the header. The Source property is required for lead tracking.'
-    },
+    }
+  ];
+
+  const comingSoonIntegrations = [
     {
-      id: 'zapier_webhook_url',
       name: 'Zapier',
       description: 'Connect with thousands of apps through Zapier webhooks.',
-      features: ['Custom workflows', 'Multi-app integration', 'Automated actions'],
-      icon: <Bot className="h-8 w-8 text-blue-400" />,
+      icon: <ExternalLink className="h-8 w-8 text-blue-400" />,
       color: 'blue',
-      inputLabel: 'Webhook URL',
-      inputPlaceholder: 'Enter your Zapier webhook URL',
-      instructions: [
-        'Log in to your Zapier account',
-        'Create a new Zap',
-        'Choose "Webhook by Zapier" as your trigger',
-        'Select "Catch Hook" as the trigger event',
-        'Copy the generated webhook URL',
-        'Paste the webhook URL in the field below'
-      ]
+      features: ['Custom workflows', 'Multi-app integration', 'Automated actions']
     }
   ];
 
@@ -334,6 +322,40 @@ const IntegrationsPage: React.FC = () => {
               </div>
             );
           })}
+
+          {/* Coming Soon Section */}
+          <div className="mt-8">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <Clock className="w-5 h-5 text-blue-400" />
+              Coming Soon
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {comingSoonIntegrations.map((integration, index) => (
+                <div
+                  key={index}
+                  className="bg-gray-800 rounded-lg border border-gray-700 p-6 opacity-75"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className={`p-3 rounded-lg bg-${integration.color}-500/20`}>
+                      {integration.icon}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">{integration.name}</h3>
+                      <p className="text-gray-400 text-sm">{integration.description}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    {integration.features.map((feature, featureIndex) => (
+                      <div key={featureIndex} className="flex items-center gap-2 text-sm text-gray-300">
+                        <div className={`w-1.5 h-1.5 rounded-full bg-${integration.color}-400`} />
+                        {feature}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Notification Banner */}
