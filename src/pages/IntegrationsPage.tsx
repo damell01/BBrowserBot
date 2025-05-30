@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { ExternalLink, AlertCircle, Bot, MessageSquare, Users, Loader2, Eye, EyeOff, Pencil, Check, X } from 'lucide-react';
+import { ExternalLink, AlertCircle, Bot, MessageSquare, Users, Loader2, Eye, EyeOff, Pencil, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
@@ -30,6 +30,7 @@ const IntegrationsPage: React.FC = () => {
   const [loading, setLoading] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
+  const [expandedInstructions, setExpandedInstructions] = useState<string | null>(null);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -92,6 +93,10 @@ const IntegrationsPage: React.FC = () => {
     }));
   };
 
+  const toggleInstructions = (integrationId: string) => {
+    setExpandedInstructions(expandedInstructions === integrationId ? null : integrationId);
+  };
+
   const integrations = [
     {
       id: 'ghl_api_key',
@@ -101,7 +106,15 @@ const IntegrationsPage: React.FC = () => {
       icon: <MessageSquare className="h-8 w-8 text-purple-400" />,
       color: 'purple',
       inputLabel: 'API Key',
-      inputPlaceholder: 'Enter your GoHighLevel API key'
+      inputPlaceholder: 'Enter your GoHighLevel API key',
+      instructions: [
+        'Log in to your GoHighLevel account',
+        'Go to Settings > API & Webhooks',
+        'Click on "Create New API Key"',
+        'Name your API key (e.g., "BrowserBot Integration")',
+        'Copy the generated API key',
+        'Paste the API key in the field below'
+      ]
     },
     {
       id: 'hubspot_api_key',
@@ -110,8 +123,17 @@ const IntegrationsPage: React.FC = () => {
       features: ['Contact creation', 'Deal pipeline sync', 'Activity tracking'],
       icon: <Users className="h-8 w-8 text-orange-400" />,
       color: 'orange',
-      inputLabel: 'API Key',
-      inputPlaceholder: 'Enter your HubSpot API key'
+      inputLabel: 'Private App Token',
+      inputPlaceholder: 'Enter your HubSpot Private App Token',
+      instructions: [
+        'Log in to your HubSpot account',
+        'Go to Settings > Account Setup > Private Apps',
+        'Click "Create private app"',
+        'Name your app and set basic information',
+        'Select required scopes (contacts, deals, etc.)',
+        'Click "Create app" and copy the generated token',
+        'Paste the token in the field below'
+      ]
     },
     {
       id: 'zapier_webhook_url',
@@ -121,7 +143,15 @@ const IntegrationsPage: React.FC = () => {
       icon: <Bot className="h-8 w-8 text-blue-400" />,
       color: 'blue',
       inputLabel: 'Webhook URL',
-      inputPlaceholder: 'Enter your Zapier webhook URL'
+      inputPlaceholder: 'Enter your Zapier webhook URL',
+      instructions: [
+        'Log in to your Zapier account',
+        'Create a new Zap',
+        'Choose "Webhook by Zapier" as your trigger',
+        'Select "Catch Hook" as the trigger event',
+        'Copy the generated webhook URL',
+        'Paste the webhook URL in the field below'
+      ]
     }
   ];
 
@@ -142,6 +172,7 @@ const IntegrationsPage: React.FC = () => {
             const storedValue = storedIntegrations[integration.id as keyof StoredIntegrations];
             const isEditing = editing === integration.id;
             const showKey = showKeys[integration.id];
+            const isExpanded = expandedInstructions === integration.id;
 
             return (
               <div
@@ -158,6 +189,11 @@ const IntegrationsPage: React.FC = () => {
                       <p className="text-gray-400 text-sm">{integration.description}</p>
                     </div>
                   </div>
+                  {storedValue && !isEditing && (
+                    <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-sm border border-emerald-500/30">
+                      Connected
+                    </span>
+                  )}
                 </div>
 
                 <div className="space-y-3 mb-6">
@@ -168,6 +204,36 @@ const IntegrationsPage: React.FC = () => {
                     </div>
                   ))}
                 </div>
+
+                {(!storedValue || isEditing) && (
+                  <button
+                    onClick={() => toggleInstructions(integration.id)}
+                    className="w-full flex items-center justify-between px-4 py-2 bg-gray-900 rounded-lg mb-4 text-sm text-gray-300 hover:bg-gray-850"
+                  >
+                    <span>How to get your {integration.inputLabel}</span>
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" />
+                    )}
+                  </button>
+                )}
+
+                {isExpanded && (
+                  <div className="mb-6 p-4 bg-gray-900 rounded-lg border border-gray-700">
+                    <h4 className="text-sm font-medium text-white mb-3">Setup Instructions:</h4>
+                    <ol className="space-y-2">
+                      {integration.instructions.map((instruction, index) => (
+                        <li key={index} className="flex items-start gap-2 text-sm text-gray-300">
+                          <span className="flex-shrink-0 w-5 h-5 rounded-full bg-gray-800 flex items-center justify-center text-xs font-medium">
+                            {index + 1}
+                          </span>
+                          {instruction}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
 
                 <div className="space-y-4">
                   {storedValue && !isEditing ? (
