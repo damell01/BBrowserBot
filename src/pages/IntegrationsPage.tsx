@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { ExternalLink, AlertCircle, Bot, MessageSquare, Users, Loader2, Eye, EyeOff, Pencil, Check, X, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { ExternalLink, AlertCircle, Bot, MessageSquare, Users, Loader2, Eye, EyeOff, Pencil, Check, X, ChevronDown, ChevronUp, Info, RefreshCw } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
@@ -69,7 +69,7 @@ const IntegrationsPage: React.FC = () => {
       const data = await response.json();
       
       if (data.success) {
-        toast.success('Integration updated successfully');
+        toast.success('Integration connected successfully! Leads will automatically sync to your CRM.');
         fetchStoredIntegrations();
         setEditing(null);
         setFormData(prev => ({
@@ -133,9 +133,13 @@ const IntegrationsPage: React.FC = () => {
         'Click Create Private App',
         'Name it (e.g., "BrowserBot Integration")',
         'In Scopes tab, add: crm.objects.contacts.read/write, crm.import, crm.export, crm.lists.read/write',
-        'Click Create App and copy your Access Token'
+        'Click Create App and copy your Access Token',
+        'Go to Settings > Data Management > Properties',
+        'Click "Create property" under Contact properties',
+        'Set Name: source, Label: Source, Type: single-line text',
+        'Save the property'
       ],
-      additionalInfo: '🔒 HubSpot uses Authorization: Bearer pat-xxxx as the header'
+      additionalInfo: '🔒 HubSpot uses Authorization: Bearer pat-xxxx as the header. The Source property is required for lead tracking.'
     },
     {
       id: 'zapier_webhook_url',
@@ -164,8 +168,14 @@ const IntegrationsPage: React.FC = () => {
         <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-8">
           <h2 className="text-xl font-bold text-white mb-2">Available Integrations</h2>
           <p className="text-gray-400">
-            Connect your favorite tools to streamline your lead management workflow.
+            Connect your favorite tools to streamline your lead management workflow. Leads will automatically sync to connected CRMs.
           </p>
+          {Object.values(storedIntegrations).some(value => value) && (
+            <div className="mt-4 flex items-center gap-2 text-sm text-emerald-400 bg-emerald-500/20 px-3 py-2 rounded-lg border border-emerald-500/30">
+              <RefreshCw className="w-4 h-4" />
+              <span>Leads are automatically syncing to your connected CRMs</span>
+            </div>
+          )}
         </div>
 
         {/* Integration Grid */}
@@ -310,7 +320,7 @@ const IntegrationsPage: React.FC = () => {
                       {loading === integration.id ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Saving...
+                          Connecting...
                         </>
                       ) : (
                         <>
