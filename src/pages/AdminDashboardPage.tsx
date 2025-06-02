@@ -1,9 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import DashboardLayout from '../components/layout/DashboardLayout';
+import { 
+  Download, 
+  Search, 
+  DollarSign, 
+  Users, 
+  Activity, 
+  Building, 
+  TrendingUp, 
+  TrendingDown,
+  Loader2,
+  RefreshCw
+} from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { getCustomers, exportCustomerLeads } from '../lib/api';
-import DashboardLayout from '../components/layout/DashboardLayout';
-import { Download, Search, DollarSign, Users, Activity, Building, TrendingUp, TrendingDown } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 interface Customer {
   id: string;
@@ -24,16 +35,42 @@ interface WeeklyLead {
   lead_count: number;
 }
 
+interface EnrichmentStats {
+  global: {
+    enriched: number;
+    failed: number;
+    queued: number;
+    attempted: number;
+    percent: number;
+  };
+  filtered: {
+    customer_id: string;
+    enriched: number;
+    failed: number;
+    queued: number;
+    attempted: number;
+    percent: number;
+  };
+  customers: Array<{
+    id: string;
+    name: string;
+  }>;
+}
+
 const AdminDashboardPage: React.FC = () => {
   const { user } = useAuth();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [weeklyLeads, setWeeklyLeads] = useState<WeeklyLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [enrichmentStats, setEnrichmentStats] = useState<EnrichmentStats | null>(null);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
+  const [refreshingStats, setRefreshingStats] = useState(false);
 
   useEffect(() => {
     fetchCustomers();
     fetchWeeklyLeads();
+    fetchEnrichmentStats();
   }, []);
 
   const fetchCustomers = async () => {
@@ -67,6 +104,31 @@ const AdminDashboardPage: React.FC = () => {
     }
   };
 
+  const fetchEnrichmentStats = async () => {
+    try {
+      setRefreshingStats(true);
+      const url = new URL(`${import.meta.env.VITE_API_URL}/enrich_stats.php`);
+      if (selectedCustomerId) {
+        url.searchParams.append('customer_id', selectedCustomerId);
+      }
+      
+      const response = await fetch(url.toString(), {
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setEnrichmentStats(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch enrichment stats:', error);
+      toast.error('Failed to fetch enrichment stats');
+    } finally {
+      setRefreshingStats(false);
+    }
+  };
+
   const handleExportLeads = async (customerId: string) => {
     try {
       await exportCustomerLeads(customerId);
@@ -80,13 +142,11 @@ const AdminDashboardPage: React.FC = () => {
     customer.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Calculate dashboard metrics
   const totalCustomers = customers.length;
   const activeCustomers = customers.filter(c => parseInt(c.lead_count) > 0).length;
   const monthlyRevenue = customers.reduce((sum, customer) => sum + parseInt(customer.monthly_value || '0'), 0);
   const totalLeads = customers.reduce((sum, customer) => sum + parseInt(customer.lead_count), 0);
 
-  // Calculate weekly trends for each customer
   const getCustomerWeeklyTrend = (customerId: string) => {
     const customerWeeks = weeklyLeads
       .filter(lead => lead.customer_id === customerId)
@@ -162,6 +222,80 @@ const AdminDashboardPage: React.FC = () => {
           <h3 className="text-gray-400 text-sm mb-1">Active Customers</h3>
           <p className="text-2xl font-bold text-white">{activeCustomers}</p>
         </div>
+      </div>
+
+      {/* Enrichment Stats Section */}
+      <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-xl font-bold text-white mb-2">Enrichment Statistics</h2>
+            <p className="text-gray-400">Track lead enrichment performance across all customers</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <select
+              value={selectedCustomerId}
+              onChange={(e) => {
+                setSelectedCustomerId(e.target.value);
+                fetchEnrichmentStats();
+              }}
+              className="px-4 py-2 bg-gray-900 text-gray-200 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500"
+            >
+              <option value="">All Customers</option>
+              {enrichmentStats?.customers.map((customer) => (
+                <option key={customer.id} value={customer.id}>
+                  {customer.name}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={fetchEnrichmentStats}
+              disabled={refreshingStats}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${refreshingStats ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        {enrichmentStats ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+              <h4 className="text-sm text-gray-400 mb-2">Enriched Leads</h4>
+              <p className="text-2xl font-bold text-white">
+                {(selectedCustomerId ? enrichmentStats.filtered.enriched : enrichmentStats.global.enriched).toLocaleString()}
+              </p>
+              <div className="mt-2 text-sm text-emerald-400">
+                {(selectedCustomerId ? enrichmentStats.filtered.percent : enrichmentStats.global.percent)}% success rate
+              </div>
+            </div>
+
+            <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+              <h4 className="text-sm text-gray-400 mb-2">Failed Enrichments</h4>
+              <p className="text-2xl font-bold text-white">
+                {(selectedCustomerId ? enrichmentStats.filtered.failed : enrichmentStats.global.failed).toLocaleString()}
+              </p>
+            </div>
+
+            <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+              <h4 className="text-sm text-gray-400 mb-2">Queued Leads</h4>
+              <p className="text-2xl font-bold text-white">
+                {(selectedCustomerId ? enrichmentStats.filtered.queued : enrichmentStats.global.queued).toLocaleString()}
+              </p>
+            </div>
+
+            <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
+              <h4 className="text-sm text-gray-400 mb-2">Total Attempted</h4>
+              <p className="text-2xl font-bold text-white">
+                {(selectedCustomerId ? enrichmentStats.filtered.attempted : enrichmentStats.global.attempted).toLocaleString()}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+          </div>
+        )}
       </div>
 
       {/* Customer Management Section */}
