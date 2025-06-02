@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Lead } from '../../context/LeadsContext';
 import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, Filter } from 'lucide-react';
 
@@ -24,9 +24,25 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ leads, onUpdateStatus }) => {
   const [showFilters, setShowFilters] = useState(false);
   const [statusFilter, setStatusFilter] = useState<Lead['status'] | 'all'>('all');
   const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
+  const [showDuplicates, setShowDuplicates] = useState(false);
   
+  // Deduplicate leads by email while preserving the original count
+  const { uniqueLeads, totalLeads } = useMemo(() => {
+    const emailMap = new Map<string, Lead>();
+    leads.forEach(lead => {
+      const email = lead.email.toLowerCase();
+      if (!emailMap.has(email) || showDuplicates) {
+        emailMap.set(email, lead);
+      }
+    });
+    return {
+      uniqueLeads: Array.from(emailMap.values()),
+      totalLeads: leads.length
+    };
+  }, [leads, showDuplicates]);
+
   // Filter leads by search term and filters
-  const filteredLeads = leads.filter(lead => {
+  const filteredLeads = uniqueLeads.filter(lead => {
     const matchesSearch = 
       lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -96,6 +112,7 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ leads, onUpdateStatus }) => {
     setStatusFilter('all');
     setDateFilter('all');
     setShowFilters(false);
+    setShowDuplicates(false);
   };
   
   return (
@@ -120,11 +137,12 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ leads, onUpdateStatus }) => {
           >
             <Filter className="h-4 w-4 mr-2" />
             Filters
-            {(statusFilter !== 'all' || dateFilter !== 'all') && (
+            {(statusFilter !== 'all' || dateFilter !== 'all' || !showDuplicates) && (
               <span className="ml-2 px-1.5 py-0.5 text-xs bg-blue-500/20 text-blue-400 rounded-full">
                 {[
                   statusFilter !== 'all' ? 1 : 0,
-                  dateFilter !== 'all' ? 1 : 0
+                  dateFilter !== 'all' ? 1 : 0,
+                  !showDuplicates ? 1 : 0
                 ].reduce((a, b) => a + b, 0)}
               </span>
             )}
@@ -163,9 +181,28 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ leads, onUpdateStatus }) => {
                   <option value="month">Last 30 Days</option>
                 </select>
               </div>
+
+              <div className="flex-1 min-w-[200px]">
+                <label className="block text-sm font-medium text-gray-400 mb-1">Duplicates</label>
+                <select
+                  value={showDuplicates ? 'show' : 'hide'}
+                  onChange={(e) => setShowDuplicates(e.target.value === 'show')}
+                  className="w-full px-3 py-2 bg-gray-800 text-gray-200 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="hide">Hide Duplicates</option>
+                  <option value="show">Show All</option>
+                </select>
+              </div>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-gray-400">
+                {showDuplicates ? (
+                  <span>Showing all {totalLeads} leads</span>
+                ) : (
+                  <span>Showing {uniqueLeads.length} unique leads (filtered from {totalLeads} total)</span>
+                )}
+              </div>
               <button
                 onClick={resetFilters}
                 className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white bg-gray-800 rounded-md hover:bg-gray-700"
