@@ -54,32 +54,12 @@ const CustomerDashboardPage: React.FC = () => {
   };
 
   const handleExportCSV = () => {
-    const headers = ['Name', 'Email', 'Phone', 'Company', 'Source', 'Status', 'Created At'];
-    const csvData = customerLeads.map(lead => [
-      lead.name,
-      lead.email,
-      lead.phone,
-      lead.company,
-      lead.source,
-      lead.status,
-      new Date(lead.createdAt).toLocaleDateString()
-    ]);
-
-    const csvContent = [
-      headers.join(','),
-      ...csvData.map(row => row.join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `browser-bot-leads-${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const url = new URL(`${import.meta.env.VITE_API_URL}/get_leads.php`);
+    url.searchParams.append('format', 'csv');
+    url.searchParams.append('dedupe', 'true');
     
-    toast.success('Leads exported successfully!');
+    window.location.href = url.toString();
+    toast.success('Exporting leads...');
   };
 
   const handleStatusUpdate = async (id: string, status: string) => {
@@ -91,24 +71,6 @@ const CustomerDashboardPage: React.FC = () => {
     }
   };
 
-  // Calculate week-over-week change
-  const calculateWeeklyChange = () => {
-    if (weeklyLeads.length < 2) return null;
-    
-    const currentWeek = weeklyLeads[0].lead_count;
-    const previousWeek = weeklyLeads[1].lead_count;
-    
-    if (previousWeek === 0) return null;
-    
-    const percentageChange = ((currentWeek - previousWeek) / previousWeek) * 100;
-    return {
-      value: Math.abs(Math.round(percentageChange)),
-      direction: percentageChange >= 0 ? 'up' : 'down'
-    };
-  };
-
-  const weeklyChange = calculateWeeklyChange();
-  
   return (
     <DashboardLayout title="Dashboard">
       <div className="mb-8">
@@ -133,17 +95,21 @@ const CustomerDashboardPage: React.FC = () => {
             <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
               <h4 className="text-sm text-gray-400 mb-2">This Week's Leads</h4>
               <p className="text-2xl font-bold text-white">{weeklyLeads[0]?.lead_count || 0}</p>
-              {weeklyChange && (
+              {weeklyLeads.length > 1 && (
                 <div className="mt-2 flex items-center text-sm">
-                  {weeklyChange.direction === 'up' ? (
+                  {weeklyLeads[0].lead_count > weeklyLeads[1].lead_count ? (
                     <>
                       <TrendingUp className="w-4 h-4 text-emerald-400 mr-1" />
-                      <span className="text-emerald-400">{weeklyChange.value}% from last week</span>
+                      <span className="text-emerald-400">
+                        {Math.round(((weeklyLeads[0].lead_count - weeklyLeads[1].lead_count) / weeklyLeads[1].lead_count) * 100)}% from last week
+                      </span>
                     </>
                   ) : (
                     <>
                       <TrendingDown className="w-4 h-4 text-rose-400 mr-1" />
-                      <span className="text-rose-400">{weeklyChange.value}% from last week</span>
+                      <span className="text-rose-400">
+                        {Math.round(((weeklyLeads[1].lead_count - weeklyLeads[0].lead_count) / weeklyLeads[1].lead_count) * 100)}% from last week
+                      </span>
                     </>
                   )}
                 </div>
