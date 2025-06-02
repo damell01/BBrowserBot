@@ -49,7 +49,8 @@ const CustomerDashboardPage: React.FC = () => {
     total: stats.total,
     new: stats.new,
     trafficResolved: Math.round((stats.contacted + stats.qualified + stats.converted) / stats.total * 100) || 0,
-    pipelineValue: stats.total * 1000
+    pipelineValue: stats.total * 1000,
+    weeklyLeads: weeklyLeads[0]?.lead_count || 0
   };
 
   const handleExportCSV = () => {
