@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Lead } from '../../context/LeadsContext';
-import { ChevronLeft, ChevronRight, Search, SlidersHorizontal } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, Filter } from 'lucide-react';
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -21,18 +21,43 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ leads, onUpdateStatus }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<keyof Lead>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [showFilters, setShowFilters] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<Lead['status'] | 'all'>('all');
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
   
-  console.log('LeadsTable - Received Leads:', leads);
-  
-  // Filter leads by search term
-  const filteredLeads = leads.filter(lead => 
-    lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    lead.phone.includes(searchTerm) ||
-    lead.company.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  
-  console.log('LeadsTable - Filtered Leads:', filteredLeads);
+  // Filter leads by search term and filters
+  const filteredLeads = leads.filter(lead => {
+    const matchesSearch = 
+      lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.phone.includes(searchTerm) ||
+      lead.company.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
+
+    const matchesDate = (() => {
+      if (dateFilter === 'all') return true;
+      
+      const leadDate = new Date(lead.createdAt);
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const monthAgo = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+
+      switch (dateFilter) {
+        case 'today':
+          return leadDate >= today;
+        case 'week':
+          return leadDate >= weekAgo;
+        case 'month':
+          return leadDate >= monthAgo;
+        default:
+          return true;
+      }
+    })();
+
+    return matchesSearch && matchesStatus && matchesDate;
+  });
   
   // Sort leads
   const sortedLeads = [...filteredLeads].sort((a, b) => {
@@ -47,16 +72,12 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ leads, onUpdateStatus }) => {
     return 0;
   });
   
-  console.log('LeadsTable - Sorted Leads:', sortedLeads);
-  
   // Paginate leads
   const totalPages = Math.ceil(sortedLeads.length / LEADS_PER_PAGE);
   const paginatedLeads = sortedLeads.slice(
     (currentPage - 1) * LEADS_PER_PAGE,
     currentPage * LEADS_PER_PAGE
   );
-  
-  console.log('LeadsTable - Paginated Leads:', paginatedLeads);
   
   const handleSort = (field: keyof Lead) => {
     if (sortField === field) {
@@ -70,26 +91,90 @@ const LeadsTable: React.FC<LeadsTableProps> = ({ leads, onUpdateStatus }) => {
   const handleStatusChange = (leadId: string, newStatus: Lead['status']) => {
     onUpdateStatus(leadId, newStatus);
   };
+
+  const resetFilters = () => {
+    setStatusFilter('all');
+    setDateFilter('all');
+    setShowFilters(false);
+  };
   
   return (
     <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
       {/* Table Header with Search & Filters */}
-      <div className="p-4 border-b border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <input
-            type="text"
-            placeholder="Search leads..."
-            className="pl-10 pr-4 py-2 bg-gray-900 text-gray-200 text-sm rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      <div className="p-4 border-b border-gray-700 space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <input
+              type="text"
+              placeholder="Search leads..."
+              className="w-full pl-10 pr-4 py-2 bg-gray-900 text-gray-200 text-sm rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          <button 
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center text-gray-300 hover:text-white text-sm bg-gray-900 border border-gray-700 rounded-md px-3 py-2"
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            Filters
+            {(statusFilter !== 'all' || dateFilter !== 'all') && (
+              <span className="ml-2 px-1.5 py-0.5 text-xs bg-blue-500/20 text-blue-400 rounded-full">
+                {[
+                  statusFilter !== 'all' ? 1 : 0,
+                  dateFilter !== 'all' ? 1 : 0
+                ].reduce((a, b) => a + b, 0)}
+              </span>
+            )}
+          </button>
         </div>
-        
-        <button className="flex items-center text-gray-300 hover:text-white text-sm bg-gray-900 border border-gray-700 rounded-md px-3 py-2">
-          <SlidersHorizontal className="h-4 w-4 mr-2" />
-          Filters
-        </button>
+
+        {/* Filters Panel */}
+        {showFilters && (
+          <div className="p-4 bg-gray-900 rounded-lg border border-gray-700 space-y-4">
+            <div className="flex flex-wrap gap-4">
+              <div className="flex-1 min-w-[200px]">
+                <label className="block text-sm font-medium text-gray-400 mb-1">Status</label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as Lead['status'] | 'all')}
+                  className="w-full px-3 py-2 bg-gray-800 text-gray-200 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="new">New</option>
+                  <option value="contacted">Contacted</option>
+                  <option value="qualified">Qualified</option>
+                  <option value="converted">Converted</option>
+                </select>
+              </div>
+
+              <div className="flex-1 min-w-[200px]">
+                <label className="block text-sm font-medium text-gray-400 mb-1">Date Range</label>
+                <select
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value as 'all' | 'today' | 'week' | 'month')}
+                  className="w-full px-3 py-2 bg-gray-800 text-gray-200 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">All Time</option>
+                  <option value="today">Today</option>
+                  <option value="week">Last 7 Days</option>
+                  <option value="month">Last 30 Days</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                onClick={resetFilters}
+                className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white bg-gray-800 rounded-md hover:bg-gray-700"
+              >
+                Reset Filters
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Table */}
