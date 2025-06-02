@@ -1,6 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { ExternalLink, AlertCircle, MessageSquare, Users, Loader2, Eye, EyeOff, Pencil, Check, X, ChevronDown, ChevronUp, Info, RefreshCw, Clock } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { 
+  ArrowRight, 
+  AlertCircle, 
+  MessageSquare, 
+  Users, 
+  Loader2, 
+  Eye, 
+  EyeOff, 
+  Pencil, 
+  Check, 
+  X, 
+  ChevronDown, 
+  ChevronUp, 
+  Info, 
+  RefreshCw, 
+  Clock,
+  CheckCircle2
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
@@ -35,13 +53,16 @@ const IntegrationsPage: React.FC = () => {
 
   const fetchStoredIntegrations = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/update_integrations.php`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/get_integrations.php`, {
         credentials: 'include'
       });
       const data = await response.json();
       
       if (data.success) {
-        setStoredIntegrations(data.integrations);
+        setStoredIntegrations({
+          hubspot_api_key: data.hubspot_api_key || null,
+          ghl_api_key: data.ghl_api_key || null,
+        });
       }
     } catch (error) {
       toast.error('Failed to fetch integrations');
@@ -143,7 +164,7 @@ const IntegrationsPage: React.FC = () => {
     {
       name: 'Zapier',
       description: 'Connect with thousands of apps through Zapier webhooks.',
-      icon: <ExternalLink className="h-8 w-8 text-blue-400" />,
+      icon: <ArrowRight className="h-8 w-8 text-blue-400" />,
       color: 'blue',
       features: ['Custom workflows', 'Multi-app integration', 'Automated actions']
     }
@@ -173,6 +194,7 @@ const IntegrationsPage: React.FC = () => {
             const isEditing = editing === integration.id;
             const showKey = showKeys[integration.id];
             const isExpanded = expandedInstructions === integration.id;
+            const isConnected = !!storedValue;
 
             return (
               <div
@@ -185,15 +207,18 @@ const IntegrationsPage: React.FC = () => {
                       {integration.icon}
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white">{integration.name}</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-white">{integration.name}</h3>
+                        {isConnected && (
+                          <span className="flex items-center text-sm text-emerald-400">
+                            <CheckCircle2 className="w-4 h-4 mr-1" />
+                            Connected
+                          </span>
+                        )}
+                      </div>
                       <p className="text-gray-400 text-sm">{integration.description}</p>
                     </div>
                   </div>
-                  {storedValue && !isEditing && (
-                    <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-sm border border-emerald-500/30">
-                      Connected
-                    </span>
-                  )}
                 </div>
 
                 <div className="space-y-3 mb-6">
@@ -367,13 +392,13 @@ const IntegrationsPage: React.FC = () => {
               <p className="mt-1 text-sm text-blue-200/70">
                 Contact our support team for assistance with integrations or custom requirements.
               </p>
-              <a
-                href="/support"
+              <Link
+                to="/support"
                 className="inline-flex items-center mt-2 text-sm text-blue-400 hover:text-blue-300"
               >
                 Contact Support
-                <ExternalLink className="ml-1 h-4 w-4" />
-              </a>
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
             </div>
           </div>
         </div>
