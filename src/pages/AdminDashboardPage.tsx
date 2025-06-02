@@ -21,11 +21,8 @@ interface Customer {
   customer_id: string;
   name: string;
   email: string;
-  role: string;
   lead_count: string;
   lead_limit: string;
-  last_active: string;
-  monthly_value: string;
 }
 
 interface WeeklyLead {
@@ -73,6 +70,12 @@ const AdminDashboardPage: React.FC = () => {
     fetchEnrichmentStats();
   }, []);
 
+  useEffect(() => {
+    if (selectedCustomerId) {
+      fetchEnrichmentStats();
+    }
+  }, [selectedCustomerId]);
+
   const fetchCustomers = async () => {
     try {
       setLoading(true);
@@ -108,6 +111,7 @@ const AdminDashboardPage: React.FC = () => {
     try {
       setRefreshingStats(true);
       const url = new URL(`${import.meta.env.VITE_API_URL}/enrich_stats.php`);
+      
       if (selectedCustomerId) {
         url.searchParams.append('customer_id', selectedCustomerId);
       }
@@ -120,6 +124,8 @@ const AdminDashboardPage: React.FC = () => {
       
       if (data.success) {
         setEnrichmentStats(data);
+      } else {
+        throw new Error(data.message || 'Failed to fetch enrichment stats');
       }
     } catch (error) {
       console.error('Failed to fetch enrichment stats:', error);
@@ -234,10 +240,7 @@ const AdminDashboardPage: React.FC = () => {
           <div className="flex items-center gap-4">
             <select
               value={selectedCustomerId}
-              onChange={(e) => {
-                setSelectedCustomerId(e.target.value);
-                fetchEnrichmentStats();
-              }}
+              onChange={(e) => setSelectedCustomerId(e.target.value)}
               className="px-4 py-2 bg-gray-900 text-gray-200 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500"
             >
               <option value="">All Customers</option>
